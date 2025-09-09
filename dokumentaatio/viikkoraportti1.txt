@@ -1,0 +1,27 @@
+Viikkoraportti 1
+
+1. Mitä olen tehnyt?
+
+Olen perehtynyt kurssimateriaaliin, valinnut aiheen sekä luonut
+projektilleni määrittelydokumentin.
+
+
+2. Miten ohjelma on edistynyt?
+
+Itse ohjelma ei ole edistynyt muuten kuin määrittelydokumentin
+osalta.
+
+
+3. Mitä opin tällä viikolla?
+
+Opin minmax-algoritmin sekä alfa-beta -harvennuksen toteutuksesta sekä aika- ja tilavaatimuksista.
+
+
+4. Mikä jäi epäselväksi?
+
+Mikään asia ei varsinaisesti jäänyt epäselväksi. Oman heuristiikkafunktioni toteutus on toki vielä työn alla.
+
+
+5. Mitä teen seuraavaksi?
+
+Pyrin toteuttamaan yksinkertaisen heuristiikkafunktion ja kokeilemaan sen toimintaa AI-platformilla.
