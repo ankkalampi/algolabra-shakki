@@ -8,29 +8,47 @@ Osaan myös C/C++:aa sekä C#:ia tarpeeksi arviodakseni niillä kirjoitettuja ha
 
 2. Työssä käytettävät algoritmit ja tietorakenteet
 
-Käytän työssäni minmax-algoritmia alfa-beta -karsinnalla. Lisäksi käytän itse luomaani heuristiikkafunktiota pisteyttämään pelitilanteita minmax-algoritmia varten. Minmax-algoritmi käyttää tietorakenteenaan puurakennetta.
+Käytän työssäni minmax-algoritmia alfa-beta -karsinnalla. Lisäksi käytän itse luomaani
+heuristiikkafunktiota pisteyttämään pelitilanteita minmax-algoritmia varten. 
+Minmax-algoritmi käyttää tietorakenteenaan puurakennetta.
 
 
 3. Ratkaistava ongelma
 
-Tavoitteena on luoda shakkitekoäly, joka kykenee pelaamaan voitokkaasti ihmispelaajaa vastaan. Keskeisenä ongelmana on heuristiikkafunktion määrittäminen siten, että minmax-algoritmi toimii tehokkaasti.
+Tavoitteena on luoda shakkitekoäly, joka kykenee pelaamaan voitokkaasti ihmispelaajaa 
+vastaan. Keskeisenä ongelmana on heuristiikkafunktion määrittäminen siten, että 
+minmax-algoritmi toimii tehokkaasti.
 
 
 4. Syötteet
 
-Ohjelma saa syötteenä pelitilanteen, eli kaikkien pelinappuloiden sijainnit pelilaudalla, sekä tiedon siitä mitkä pelinapulat ovat pelissä. Näistä tilanteista simuloidaan peliä eteenpäin minmax-algoritmin, alfa-beta -harvennuksen sekä heuristiikkafunktion avulla siten, että saadaan arvioitua optimaalinen siirto, eli optimaalisin tilannetta seuraava laillinen pelitilanne.
+Ohjelma saa syötteenä pelitilanteen, eli kaikkien pelinappuloiden sijainnit pelilaudalla, 
+sekä tiedon siitä mitkä pelinapulat ovat pelissä. Näistä tilanteista simuloidaan peliä 
+eteenpäin minmax-algoritmin, alfa-beta -harvennuksen sekä heuristiikkafunktion avulla 
+siten, että saadaan arvioitua optimaalinen siirto, eli optimaalisin tilannetta seuraava 
+laillinen pelitilanne.
 
 
 5. Aika- ja tilavaativuudet
 
-Minmax-algoritmin aikavaativuus on O(b^d), jossa b on puun keskimääräinen haaroittuvuus, ja d on puun syvyys. Tilavaativuus on samoilla määreillä O(bd). Alfa-beta -karsinta vähentää todellisuudessa huomattavasti suoritusaikaa, mutta sen teoreettinen huonoin aika- sekä tilavaatimus  on kuitenkin niin ikään O(b^d) ja O(bd). Oma heuristiikkafunktioni aika- ja tilavaativuus on varmasti O(n), joten koko kokonaisuuden aikavaativuus on siis O(b^d) ja tilavaativuus on O(bd).
+Minmax-algoritmin aikavaativuus on O(b^d), jossa b on puun keskimääräinen haaroittuvuus, 
+ja d on puun syvyys. Tilavaativuus on samoilla määreillä O(bd). Alfa-beta -karsinta 
+vähentää todellisuudessa huomattavasti suoritusaikaa, mutta sen teoreettinen huonoin 
+aika- sekä tilavaatimus  on kuitenkin niin ikään O(b^d) ja O(bd). Oma heuristiikkafunktioni 
+aika- ja tilavaativuus on varmasti O(n), joten koko kokonaisuuden aikavaativuus on 
+siis O(b^d) ja tilavaativuus on O(bd).
 
 
 6. Käytettävät lähteet
 
-Sekä minmax-algoritmin, että alfa-beta -harvennuksen kuvaukset ovat suhteellisen yksinkertaisia, ja uskon wikipedia-artikkeleiden riittävän niiden ymmärtämiseen. Heuristiikkafunktion luomiseen aion käyttää osittain omaa tietämystäni shakista, sekä artikkeleita, joissa käsitellään shakkiheuristiikkaa. Aion mahdollisesti myös perehtyä artikkeleihin, joissa käsitellään heuristiikkoja, joita oikeat shakkitekoälyt käyttävät.
+Sekä minmax-algoritmin, että alfa-beta -harvennuksen kuvaukset ovat suhteellisen yksinkertaisia, 
+ja uskon wikipedia-artikkeleiden riittävän niiden ymmärtämiseen. Heuristiikkafunktion luomiseen 
+aion käyttää osittain omaa tietämystäni shakista, sekä artikkeleita, joissa käsitellään 
+shakkiheuristiikkaa. Aion mahdollisesti myös perehtyä artikkeleihin, joissa käsitellään 
+heuristiikkoja, joita oikeat shakkitekoälyt käyttävät.
 
 
 7. Harjoitustyön ydin
 
-Harjoitustyön ytimenä on Minmax-algoritmin, alfa-beta -harvennuksen sekä oman heuristiikkafunktion luominen. Keskeisimpänä näistä on heuristiikkafunktion luominen.
+Harjoitustyön ytimenä on Minmax-algoritmin, alfa-beta -harvennuksen sekä oman heuristiikkafunktion 
+luominen. Keskeisimpänä näistä on heuristiikkafunktion luominen.
