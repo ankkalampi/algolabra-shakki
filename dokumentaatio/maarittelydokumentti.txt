@@ -3,7 +3,7 @@ Määrittelydokumentti - shakki
 1. Käytettävä ohjelmointikieli
 
 Käytän harjoitustyössä pythonia yhdistettynä AI-platform -alustaan.
-Osaan myös C/C++:aa sekä C#:ia tarpeeksi arviodakseni niillä kirjoitettuja harjoitustöitä.
+Osaan myös C/C++:aa sekä C#:ia tarpeeksi arvioidakseni niillä kirjoitettuja harjoitustöitä.
 
 
 2. Työssä käytettävät algoritmit ja tietorakenteet
