@@ -1,0 +1,34 @@
+Viikkoraportti 2
+
+1. Mitä olen tehnyt?
+
+Olen yhdistänyt projektiini kurssilla tarjotun AI-platform -alustan, 
+ja kokeillut, että se toimii.
+
+
+2. Miten ohjelma on edistynyt?
+
+Ohjelma on edistynyt siten, että AI-platform -alusta on nyt kytketty
+onnistuneesti projektiin.
+
+
+3. Mitä opin tällä viikolla?
+
+Olen selvittänyt, miten AI-platform toimii, sekä miten voin käyttää sitä
+seuraamaan omaa heuristiikkafunktiotani. Lisäksi olen lukenut shakkitekoälyjen
+yleisesti käyttämistä heuristiikoista.
+
+
+4. Mikä jäi epäselväksi?
+
+En ehtinyt vielä toteuttamaan omaa heuristiikkafunktiotani AI-platformin
+yhteyteen, joten esimerkiksi pythonin chess-kirjaston korvaaminen omalla koodilla 
+ei ole minulle vielä täysin selvää. Lisäksi heuristiikkafunktion suunnittelu on vielä kesken.
+
+
+5. Mitä teen seuraavaksi?
+
+Toteutan jonkinlaisen heuristiikkafunktion, jonka perusteella ohjelma arvioi parhaimman siirron. 
+Toteutan minmax-algoritmin sekä alfa-beta -karsinnan vasta tämän jälkeen, koska tarvitsen
+joka tapauksessa jonkinlaisen heuristiikan, jotta minmax-algoritmi voisi toimia. Minmax-algoritmin
+toteutuksen jälkeen siirryn jatkokehittämään heuristiikkafunktiota. 
