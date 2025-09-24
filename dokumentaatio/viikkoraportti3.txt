@@ -1,0 +1,28 @@
+Viikkoraportti 2
+
+1. Mitä olen tehnyt?
+
+Olen selvittänyt, miten pythonin chess-kirjasto toimii
+
+
+2. Miten ohjelma on edistynyt?
+
+Varsinainen ohjelma ei ole edistynyt
+
+
+3. Mitä opin tällä viikolla?
+
+Olen oppinut, että pythonin chess-kirjasto käyttää bitboard-rakenteita pelitilanteiden käsittelyyn
+ja laillisten siirtojen selvittämiseen.
+
+
+4. Mikä jäi epäselväksi?
+
+Tarkka toteutus on vielä kesken.
+
+
+5. Mitä teen seuraavaksi?
+
+Toteutan pyhonin chess-kirjaston tyylisen tavan selvittää lailliset siirrot, ja korvata siten chess-kirjaston
+harjoitustyössä. Samalla kirjoitan testit lailliset siirrot selvittäville funktioille. Tämän jälkeen siirryn 
+kehittämään heuristiikkafunktiota.
