@@ -23,6 +23,8 @@ class ChessBoard:
 
         self.white_to_move = True
         self.available_moves = []
+        self.empty_squares = 0x0000000000000000
+        self.in_check = False
 
         # bitmasks for checking that pieces won't move outside the board
         # for pawns the masks check if opening double move is available
@@ -31,7 +33,7 @@ class ChessBoard:
 
 
     # resets the board to opening situation
-    def reset_board(self):
+    def reset(self):
         self.white_en_passant   = 0x0000000000000000
         self.white_pawns        = 0x000000000000FF00
         self.white_knights      = 0x0000000000000042
@@ -51,6 +53,7 @@ class ChessBoard:
         self.white_to_move = True
         self.available_moves = []
         self.empty_squares = 0x0000000000000000
+        self.in_check = False
 
         
 
@@ -76,7 +79,12 @@ class ChessBoard:
     # returns uci notation. uci notation is a string of 4 characters, with the exception that 
     # a pawn promotion takes place, adding fifth character to the string. 
     # promotion character is empty on default
-    def move_to_notation(origin, destination, promotion=""):
+    def push_uci(self, origin_bitboard, destination_bitboard, promotion=""):
+
+        # get square numbers from bitboard representations
+        origin = (origin_bitboard).bit_length() - 1
+        destination = (destination_bitboard).bit_length() - 1
+
         origin_file = origin % 8
         origin_rank = (origin // 8) + 1 # +1 is due to chess notation starting form 1 not 0
 
@@ -88,7 +96,7 @@ class ChessBoard:
         return f"{chr(97+origin_file)}{origin_rank}{chr(97+destination_file)}{destination_rank}{promotion}"
         
 
-    # filters out moves that put the movng party's king in check, as well as illegal castling
+    # filters out moves that put the moving party's king in check, as well as illegal castling
     def filter_illegal_moves(self):
         pass
 
@@ -96,6 +104,12 @@ class ChessBoard:
     # NOTE: en passant table must be always updated when a move is commited!
     def generate_en_passant_moves(self):
         pass
+
+        
+
+
+
+
 
 
 
@@ -134,6 +148,12 @@ class ChessBoard:
     def generate_knight_moves(self):
         pass
 
+
+    
+
+
+    
+
     # generates bishop moves, does not yet check if a move is illegal for checking the king
     def generate_bishop_moves(self):
         pass
@@ -152,11 +172,12 @@ class ChessBoard:
 
 
 
-def set_board(board: chess.Board, board_position:str):
+
+def set_board(board: ChessBoard, board_position:str):
     print(f"Set board to {board_position}!")
     board.set_fen(board_position)
 
-def make_move(board: chess.Board):
+def make_move(board: ChessBoard):
     legal_moves = [move.uci() for move in list(board.legal_moves)]
     print(f"I found {len(legal_moves)} legal moves: {', '.join(legal_moves)}")
     choice = random.choice(legal_moves)
@@ -165,13 +186,25 @@ def make_move(board: chess.Board):
     return choice
 
 
+    
+
+
+
+
+
+
 
 
 
 
 def main():
 
-    #board = chess.Board()
+    board = ChessBoard()
+
+    origin = 0b1000000000000
+    destination = 0b100000000000000000000
+
+    print(board.push_uci(origin, destination))
 
     while True:
         opponent_move = input()
