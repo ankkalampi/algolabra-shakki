@@ -19,9 +19,18 @@ class ChessBoard:
         self.black_king     = 0x1000000000000000
 
         self.white_to_move = True
+        self.available_moves = []
 
+
+    # find all legal moves based on whose turn it is
+    def generate_available_moves(self):
+        pass
+
+
+
+    # generates pawn moves, does not yet check if a move is illegal for checking the king
     def generate_pawn_moves(self):
-        moves = []
+        
 
         # calculate empty squares (complement of all squares with pieces)
         empty_squares = ~(self.white_pawns | self.white_knights | self.white_bishops |
@@ -38,6 +47,26 @@ class ChessBoard:
             # (moving piece must be in starting position, destination square must be empty,
             # and the square in between has to be empty as well)
             double_moves = ((self.white_pawns & 0x000000000000FF00) << 16) & empty_squares & (empty_squares << 8)
+
+    # generates knight moves, does not yet check if a move is illegal for checking the king
+    def generate_knight_moves(self):
+        pass
+
+    # generates bishop moves, does not yet check if a move is illegal for checking the king
+    def generate_bishop_moves(self):
+        pass
+
+    # generates rook moves, does not yet check if a move is illegal for checking the king
+    def generate_rook_moves(self):
+        pass
+
+    # generates queen moves, does not yet check if a move is illegal for checking the king
+    def generate_queen_moves(self):
+        pass
+
+    # generates king moves, does not yet check if a move is illegal for checking the king
+    def generate_king_moves(self):
+        pass
 
 
 
