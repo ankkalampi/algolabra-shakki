@@ -40,6 +40,9 @@ class ChessBoard:
         self.white_queens       = 0x0000000000000008
         self.white_king         = 0x0000000000000010
 
+        self.white_pieces       = ( self.white_pawns | self.white_knights | self.white_bishops |
+                                    self.white_rooks | self.white_queens | self.white_king)
+
         self.black_en_passant   = 0x0000000000000000
         self.black_pawns        = 0x00FF000000000000
         self.black_knights      = 0x4200000000000000
@@ -47,6 +50,9 @@ class ChessBoard:
         self.black_rooks        = 0x8100000000000000
         self.black_queens       = 0x0800000000000000
         self.black_king         = 0x1000000000000000
+
+        self.black_pieces       = ( self.black_pawns | self.black_knights | self.black_bishops |
+                                    self.black_rooks | self.black_queens | self.black_king)
 
         self.white_to_move = True
         self.available_moves = []
@@ -69,6 +75,8 @@ class ChessBoard:
         self.white_queens       = 0x0000000000000008
         self.white_king         = 0x0000000000000010
 
+        self.white_pieces       = self.get_white_pieces()
+
         self.black_en_passant   = 0x0000000000000000
         self.black_pawns        = 0x00FF000000000000
         self.black_knights      = 0x4200000000000000
@@ -77,10 +85,21 @@ class ChessBoard:
         self.black_queens       = 0x0800000000000000
         self.black_king         = 0x1000000000000000
 
+        self.black_pieces       = self.get_black_pieces()
+
         self.white_to_move = True
         self.available_moves = []
         self.empty_squares = 0x0000000000000000
         self.in_check = False
+
+
+    def get_white_pieces(self):
+        return ( self.black_pawns | self.black_knights | self.black_bishops |
+                                    self.black_rooks | self.black_queens | self.black_king)
+
+    def get_black_pieces(self):
+        return ( self.black_pawns | self.black_knights | self.black_bishops |
+                                    self.black_rooks | self.black_queens | self.black_king)
 
         
 
@@ -88,10 +107,15 @@ class ChessBoard:
     def generate_available_moves(self):
 
         # calculate empty squares (complement of all squares with pieces)
-        self.empty_squares = ~(self.white_pawns | self.white_knights | self.white_bishops |
-                            self.white_rooks | self.white_queens | self.white_king |
-                            self.black_pawns | self.black_knights | self.black_bishops |
-                            self.black_rooks | self.black_queens | self.black_king)
+        self.empty_squares = ~( self.white_pawns | self.white_knights | self.white_bishops |
+                                self.white_rooks | self.white_queens | self.white_king |
+                                self.black_pawns | self.black_knights | self.black_bishops |
+                                self.black_rooks | self.black_queens | self.black_king)
+
+
+        
+
+        
 
         self.generate_pawn_moves()
         self.generate_en_passant_moves()
@@ -132,6 +156,14 @@ class ChessBoard:
     def generate_en_passant_moves(self):
         pass
 
+    # generate bitboard for showing attack squares for white
+    def generate_white_attack_board(self):
+        pass
+
+    # generate bitboard for showing attack squares for black
+    def generate_black_attack_board(self):
+        pass
+
         
 
 
@@ -150,23 +182,26 @@ class ChessBoard:
         # WHITE
         if (self.white_to_move):
             # calculate single square pawn moves (shifting bits 8 positions left, so up one rank)
-            # also checks that moves don't take pawns outside of the board using bitmask (0xFF)
-            pawn_moves = (self.white_pawns << 8) & empty_squares & ~(0xFF << 8)
+            single_moves = (self.white_pawns << 8) & self.empty_squares 
+
+
+            unmoved_pawns = self.white_pawns & self.white_pawn_double_mask
+            unblocked_pawns = (self.white_pawns << 8) & self.empty_squares  
 
             # calculate double square moves 
             # (moving piece must be in starting position, destination square must be empty,
             # and the square in between has to be empty as well)
-            double_moves = ((self.white_pawns & self.white_pawn_double_mask) << 16) & empty_squares & (empty_squares << 8)
+            double_moves = (unmoved_pawns << 16) & (unblocked_pawns << 8) & self.empty_squares 
 
         # BLACK
         else:
             # calculate single square pawn moves (shifting bits 8 positions right, so down one rank)
-            pawn_moves = (self.black_pawns >> 8) & empty_squares
+            pawn_moves = (self.black_pawns >> 8) & self.empty_squares
 
             # calculate double square moves 
             # (moving piece must be in starting position, destination square must be empty,
             # and the square in between has to be empty as well)
-            double_moves = ((self.black_pawns & self.black_pawn_double_mask) >> 16) & empty_squares & (empty_squares >> 8)
+            double_moves = ((self.black_pawns & self.black_pawn_double_mask) >> 16) & self.empty_squares & (self.empty_squares >> 8)
 
 
         
