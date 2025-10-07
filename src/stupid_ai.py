@@ -1,6 +1,33 @@
 import random
 import time
 
+# TODO: generate bitboards for pawn moves (partially complete) 
+# TODO: generate bitboards for knight moves
+# TODO: generate bitboards for bishop moves
+# TODO: generate bitboards for rook moves
+# TODO: generate bitboards for queen moves
+# TODO: generate bitboards for king moves (incl. castling)
+# TODO: generate bitboards for en passant
+
+# TODO: add logic for in_check situation to these functions
+
+# TODO: create function for generating attack bitboard (to check where the opponent can attack in a certain situation)
+# TODO: create function for generating attack bitboard (to check where the current player can attack in a certain situation) 
+
+# TODO: create logic for testing a move (recalculate attack bitboards)
+# TODO: create logic for removing illegal moves
+# TODO: create logic for commiting a move (update data such as in_check, white_to_move, etc)
+
+# TODO: create simple heuristics
+
+# TODO: implement minmax algorithm
+
+# TODO: create testing
+
+# TODO: fine tune heuristics
+
+
+
 class ChessBoard:
     def __init__(self):
         # init bitboards for each piece type
