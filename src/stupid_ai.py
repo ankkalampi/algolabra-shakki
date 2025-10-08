@@ -64,6 +64,15 @@ class ChessBoard:
         self.white_pawn_double_mask = 0xFF << 8
         self.black_pawn_double_mask = 0xFF >> 48
 
+        self.knight_plus6_mask
+        self.knight_plus10_mask
+        self.knight_plus15_mask
+        self.knight_plus17_mask
+        self.knight_minus6_mask
+        self.knight_minus10_mask
+        self.knight_minus15_mask
+        self.knight_minus17_mask
+
 
     # resets the board to opening situation
     def reset(self):
@@ -196,12 +205,15 @@ class ChessBoard:
         # BLACK
         else:
             # calculate single square pawn moves (shifting bits 8 positions right, so down one rank)
-            pawn_moves = (self.black_pawns >> 8) & self.empty_squares
+            single_moves = (self.black_pawns >> 8) & self.empty_squares
+
+            unmoved_pawns = self.black_pawns & self.black_pawn_double_mask
+            unblocked_pawns = (self.black_pawns << 8) & self.empty_squares
 
             # calculate double square moves 
             # (moving piece must be in starting position, destination square must be empty,
             # and the square in between has to be empty as well)
-            double_moves = ((self.black_pawns & self.black_pawn_double_mask) >> 16) & self.empty_squares & (self.empty_squares >> 8)
+            double_moves = (unmoved_pawns >> 16) & (unblocked_pawns >> 8) & self.empty_squares 
 
 
         
