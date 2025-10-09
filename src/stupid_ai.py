@@ -64,14 +64,14 @@ class ChessBoard:
         self.white_pawn_double_mask = 0xFF << 8
         self.black_pawn_double_mask = 0xFF >> 48
 
-        self.knight_plus6_mask
-        self.knight_plus10_mask
-        self.knight_plus15_mask
-        self.knight_plus17_mask
-        self.knight_minus6_mask
-        self.knight_minus10_mask
-        self.knight_minus15_mask
-        self.knight_minus17_mask
+        self.knight_plus6_mask      = 0x3F3F3F3F3F3F3F3F
+        self.knight_plus10_mask     = 0x3F3F3F3F3F3F3F3F
+        self.knight_plus15_mask     = 0x7F7F7F7F7F7F7F7F
+        self.knight_plus17_mask     = 0x7F7F7F7F7F7F7F7F
+        self.knight_minus6_mask     = 0xFEFEFEFEFEFEFEFE
+        self.knight_minus10_mask    = 0xFCFCFCFCFCFCFCFC
+        self.knight_minus15_mask    = 0xF8F8F8F8F8F8F8F8
+        self.knight_minus17_mask    = 0xF0F0F0F0F0F0F0F0
 
 
     # resets the board to opening situation
@@ -134,6 +134,8 @@ class ChessBoard:
         self.generate_queen_moves()
         self.generate_king_moves()
         self.filter_illegal_moves()
+        
+
 
 
     # returns uci notation. uci notation is a string of 4 characters, with the exception that 
@@ -202,6 +204,8 @@ class ChessBoard:
             # and the square in between has to be empty as well)
             double_moves = (unmoved_pawns << 16) & (unblocked_pawns << 8) & self.empty_squares 
 
+            
+
         # BLACK
         else:
             # calculate single square pawn moves (shifting bits 8 positions right, so down one rank)
@@ -215,16 +219,46 @@ class ChessBoard:
             # and the square in between has to be empty as well)
             double_moves = (unmoved_pawns >> 16) & (unblocked_pawns >> 8) & self.empty_squares 
 
+        
+        return single_moves | double_moves
+        
+
 
         
 
     # generates knight moves, does not yet check if a move is illegal for checking the king
     def generate_knight_moves(self):
-        pass
+        
+        # a knight has eight moves, whick on a bitboard are +6,+10,+15,+17,-6,-10,-15,-17
+        # if a knight is too close to a border of the board, the moves that would land outside of the board
+        # would appear on the other side of the board. That's why bitmasks are used to filter out these incorrect moves
+
+        # WHITE
+        if(white_to_move):
+            plus6_moves     = (self.white_knights << 6)     & self.knight_plus6_mask
+            plus10_moves    = (self.white_knights << 10)    & self.knight_plus10_mask
+            plus15_moves    = (self.white_knights << 15)    & self.knight_plus15_mask
+            plus17_moves    = (self.white_knights << 17)    & self.knight_plus17_mask
+            minus6_moves    = (self.white_knights >> 6)     & self.knight_minus6_mask
+            minus10_moves   = (self.white_knights >> 10)    & self.knight_minus10_mask
+            minus15_moves   = (self.white_knights >> 15)    & self.knight_minus15_mask
+            minus17_moves   = (self.white_knights >> 17)    & self.knight_minus17_mask
+
+        # BLACK
+        else:
+            plus6_moves     = (self.black_knights << 6)     & self.knight_plus6_mask
+            plus10_moves    = (self.black_knights << 10)    & self.knight_plus10_mask
+            plus15_moves    = (self.black_knights << 15)    & self.knight_plus15_mask
+            plus17_moves    = (self.black_knights << 17)    & self.knight_plus17_mask
+            minus6_moves    = (self.black_knights >> 6)     & self.knight_minus6_mask
+            minus10_moves   = (self.black_knights >> 10)    & self.knight_minus10_mask
+            minus15_moves   = (self.black_knights >> 15)    & self.knight_minus15_mask
+            minus17_moves   = (self.black_knights >> 17)    & self.knight_minus17_mask
 
 
+        return (plus6_moves | plus10_moves | plus15_moves | plus17_moves |
+                minus6_moves | minus10_moves | minus15_moves | minus17_moves) & empty_squares
     
-
 
     
 
