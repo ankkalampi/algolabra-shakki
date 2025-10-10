@@ -73,6 +73,15 @@ class ChessBoard:
         self.knight_minus15_mask    = 0xF8F8F8F8F8F8F8F8
         self.knight_minus17_mask    = 0xF0F0F0F0F0F0F0F0
 
+        self.king_north_mask        = 0xFFFFFFFFFFFFFFFF  
+        self.king_northeast_mask    = 0x7F7F7F7F7F7F7F7F
+        self.king_east_mask         = 0x7F7F7F7F7F7F7F7F
+        self.king_southeast_mask    = 0x7F7F7F7F7F7F7F7F
+        self.king_south_mask        = 0xFFFFFFFFFFFFFFFF
+        self.king_southwest_mask    = 0xFEFEFEFEFEFEFEFE
+        self.king_west_mask         = 0xFEFEFEFEFEFEFEFE
+        self.king_northwest_mask    = 0xFEFEFEFEFEFEFEFE
+
 
         # precomputed attack tables for each piece type
         # these are used for fast lookup of possible moves
@@ -366,9 +375,34 @@ class ChessBoard:
 
 
 
-    # TODO: precompute_single_king_attack_table
+    # precompute single attack table for king moves
     def precompute_single_king_attack_table(self, square):
         bitboard = 0
+
+        # add move north
+        bitboard |= (square << 8) & self.king_north_mask
+
+        # add move northeast
+        bitboard |= (square << 7) & self.king_northeast_mask
+
+        # add move east
+        bitboard |= (square >> 1) & self.king_east_mask
+
+        # add move southeast
+        bitboard |= (square >> 7) & self.king_southeast_mask
+
+        # add move south
+        bitboard |= (square >> 8) & self.king_south_mask
+
+        # add move southwest
+        bitboard |= (square >> 9) & self.king_southwest_mask
+
+        # add move west
+        bitboard |= (square << 1) & self.king_west_mask
+
+        # add move northwest
+        bitboard |= (square << 9) & self.king_northwest_mask
+
         return bitboard
 
 
