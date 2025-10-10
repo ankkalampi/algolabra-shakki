@@ -74,6 +74,14 @@ class ChessBoard:
         self.knight_minus17_mask    = 0xF0F0F0F0F0F0F0F0
 
 
+        # precomputed attack tables for each piece type
+        # these are used for fast lookup of possible moves
+        self.bishop_attack_tables = self.precompute_bishop_attack_tables()
+        self.rook_attack_tables = self.precompute_rook_attack_tables()
+        self.queen_attack_tables = self.precompute_queen_attack_tables()
+        self.king_attack_tables = self.precompute_king_attack_tables()
+
+
     # resets the board to opening situation
     def reset(self):
         self.white_en_passant   = 0x0000000000000000
@@ -141,7 +149,7 @@ class ChessBoard:
     # returns uci notation. uci notation is a string of 4 characters, with the exception that 
     # a pawn promotion takes place, adding fifth character to the string. 
     # promotion character is empty on default
-    def push_uci(self, origin_bitboard, destination_bitboard, promotion=""):
+    def get_uci(self, origin_bitboard, destination_bitboard, promotion=""):
 
         # get square numbers from bitboard representations
         origin = (origin_bitboard).bit_length() - 1
@@ -156,6 +164,9 @@ class ChessBoard:
         # files are converted to characters. in ASCII, a=97
 
         return f"{chr(97+origin_file)}{origin_rank}{chr(97+destination_file)}{destination_rank}{promotion}"
+
+    def push_uci(self, uci):
+        pass
         
 
     # filters out moves that put the moving party's king in check, as well as illegal castling
@@ -185,13 +196,11 @@ class ChessBoard:
 
 
     # generates pawn moves, does not yet check if a move is illegal for checking the king
-    def generate_pawn_moves(self):
-        
-        
+    def generate_pawn_moves(self):      
         # generate bitboards for legal moves
 
         # WHITE
-        if (self.white_to_move):
+        if self.white_to_move:
             # calculate single square pawn moves (shifting bits 8 positions left, so up one rank)
             single_moves = (self.white_pawns << 8) & self.empty_squares 
 
@@ -199,7 +208,7 @@ class ChessBoard:
             unmoved_pawns = self.white_pawns & self.white_pawn_double_mask
             unblocked_pawns = (self.white_pawns << 8) & self.empty_squares  
 
-            # calculate double square moves 
+            # calculate double square moves
             # (moving piece must be in starting position, destination square must be empty,
             # and the square in between has to be empty as well)
             double_moves = (unmoved_pawns << 16) & (unblocked_pawns << 8) & self.empty_squares 
@@ -219,7 +228,7 @@ class ChessBoard:
             # and the square in between has to be empty as well)
             double_moves = (unmoved_pawns >> 16) & (unblocked_pawns >> 8) & self.empty_squares 
 
-        
+        # returns a bitboard with pseudo-legal pawn moves
         return single_moves | double_moves
         
 
@@ -234,7 +243,7 @@ class ChessBoard:
         # would appear on the other side of the board. That's why bitmasks are used to filter out these incorrect moves
 
         # WHITE
-        if(white_to_move):
+        if(self.white_to_move):
             plus6_moves     = (self.white_knights << 6)     & self.knight_plus6_mask
             plus10_moves    = (self.white_knights << 10)    & self.knight_plus10_mask
             plus15_moves    = (self.white_knights << 15)    & self.knight_plus15_mask
@@ -256,11 +265,110 @@ class ChessBoard:
             minus17_moves   = (self.black_knights >> 17)    & self.knight_minus17_mask
 
 
-        return (plus6_moves | plus10_moves | plus15_moves | plus17_moves |
-                minus6_moves | minus10_moves | minus15_moves | minus17_moves) & empty_squares
+        # returns a bitboard with pseudo-legal knight moves
+        return ((plus6_moves | plus10_moves | plus15_moves | plus17_moves | 
+                minus6_moves | minus10_moves | minus15_moves | minus17_moves) & self.empty_squares)
+    
+    
     
 
-    
+    # computes a bishop attack table for a single square
+    # returns bitboard
+    def precompute_single_bishop_attack_table(self, square):
+
+        bitboard = 0
+
+        # get rank and file of the square
+        rank = square // 8
+        file = square % 8
+
+        space_right = file      # number of squares to the right 
+        space_left = 7 - file   # number of squares to the left
+        space_down = rank       # number of squares below
+        space_up = 7 - rank     # number of squares above
+
+        # diagonal lengths
+        # order: northeast, southeast, southwest, northwest
+        diagonal_lengths = [min(space_right, space_up),
+                            min(space_right, space_down),
+                            min(space_down, space_left),
+                            min(space_left, space_up)]
+
+        # scalars for diagonal bit shifts
+        # order: northeast, southeast, southwest, northwest
+        diagonal_scalars = [7, -7, -9, 9]
+
+        # add northeast diagonal to bitboard
+        for diagonal in range (0,4):
+            for move in range(1, diagonal_lengths[diagonal] +1):
+                # create temporary bitboard for a single move, and combine that bitboard with the main bitboard
+                temp_bitboard = 0
+                temp_bitboard |= (1 << square)
+                move_bitboard = (temp_bitboard << (move * diagonal_scalars[diagonal])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                bitboard |= move_bitboard
+
+        return bitboard
+
+
+    def precompute_bishop_attack_tables(self):
+        bitboards = []
+
+        for x in range(0, 64):
+            bitboard = self.precompute_single_bishop_attack_table(x)
+            bitboards.append(bitboard)
+
+        return bitboards
+
+
+    # TODO: precompute_single_rook_attack_table
+    def precompute_single_rook_attack_table(self, square):
+        bitboard = 0
+        return bitboard
+
+    def precompute_rook_attack_tables(self):
+        bitboards = []
+
+        for x in range(0, 64):
+            bitboard = self.precompute_single_rook_attack_table(x)
+            bitboards.append(bitboard)
+
+        return bitboards
+
+    # TODO: precompute_single_queen_attack_table
+    def precompute_single_queen_attack_table(self, square):
+        bitboard = 0
+        return bitboard
+
+    def precompute_queen_attack_tables(self):
+        bitboards = []
+
+        for x in range(0, 64):
+            bitboard = self.precompute_single_queen_attack_table(x)
+            bitboards.append(bitboard)
+
+        return bitboards
+
+    # TODO: precompute_single_king_attack_table
+    def precompute_single_king_attack_table(self, square):
+        bitboard = 0
+        return bitboard
+
+    def precompute_king_attack_tables(self):
+        bitboards = []
+
+        for x in range(0, 64):
+            bitboard = self.precompute_single_king_attack_table(x)
+            bitboards.append(bitboard)
+
+        return bitboards
+
+
+
+
+
+
+
+
 
     # generates bishop moves, does not yet check if a move is illegal for checking the king
     def generate_bishop_moves(self):
@@ -312,7 +420,7 @@ def main():
     origin = 0b1000000000000
     destination = 0b100000000000000000000
 
-    print(board.push_uci(origin, destination))
+    print(board.get_uci(origin, destination))
 
     while True:
         opponent_move = input()
