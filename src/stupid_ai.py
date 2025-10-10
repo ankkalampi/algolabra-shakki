@@ -76,10 +76,10 @@ class ChessBoard:
 
         # precomputed attack tables for each piece type
         # these are used for fast lookup of possible moves
-        self.bishop_attack_tables = self.precompute_bishop_attack_tables()
-        self.rook_attack_tables = self.precompute_rook_attack_tables()
-        self.queen_attack_tables = self.precompute_queen_attack_tables()
-        self.king_attack_tables = self.precompute_king_attack_tables()
+        self.bishop_attack_tables = self.precompute_attack_tables(self.precompute_single_bishop_attack_table)
+        self.rook_attack_tables = self.precompute_attack_tables(self.precompute_single_rook_attack_table)
+        self.queen_attack_tables = self.precompute_attack_tables(self.precompute_single_queen_attack_table)
+        self.king_attack_tables = self.precompute_attack_tables(self.precompute_single_king_attack_table)
 
 
     # resets the board to opening situation
@@ -298,7 +298,7 @@ class ChessBoard:
         # order: northeast, southeast, southwest, northwest
         diagonal_scalars = [7, -7, -9, 9]
 
-        # add northeast diagonal to bitboard
+        # add diagonals to bitboard
         for diagonal in range (0,4):
             for move in range(1, diagonal_lengths[diagonal] +1):
                 # create temporary bitboard for a single move, and combine that bitboard with the main bitboard
@@ -310,11 +310,12 @@ class ChessBoard:
         return bitboard
 
 
-    def precompute_bishop_attack_tables(self):
+    # generate all tables for a piece type using precompute function of that piece
+    def precompute_attack_tables(self, func):
         bitboards = []
 
         for x in range(0, 64):
-            bitboard = self.precompute_single_bishop_attack_table(x)
+            bitboard = func(x)
             bitboards.append(bitboard)
 
         return bitboards
@@ -323,48 +324,52 @@ class ChessBoard:
     # TODO: precompute_single_rook_attack_table
     def precompute_single_rook_attack_table(self, square):
         bitboard = 0
+
+        # get rank and file of the square
+        rank = square // 8
+        file = square % 8
+
+        space_right = file      # number of squares to the right 
+        space_left = 7 - file   # number of squares to the left
+        space_down = rank       # number of squares below
+        space_up = 7 - rank     # number of squares above
+
+        # lengths of directions
+        # order: up, right, down, left
+        direction_lengths = [space_up,
+                             space_right,
+                             space_down,
+                             space_left]
+
+        # scalars for directional bit shifts
+        # order: up, right, down, left
+        direction_scalars = [8, -1, -8, 1]
+
+        for direction in range(0,4):
+            for move in range(1, direction_lengths[direction] +1):
+                temp_bitboard = 0
+                temp_bitboard |= (1 << square)
+                move_bitboard = (temp_bitboard << (move * direction_scalars[direction])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                bitboard |= move_bitboard
+
+
+
         return bitboard
 
-    def precompute_rook_attack_tables(self):
-        bitboards = []
-
-        for x in range(0, 64):
-            bitboard = self.precompute_single_rook_attack_table(x)
-            bitboards.append(bitboard)
-
-        return bitboards
-
-    # TODO: precompute_single_queen_attack_table
+    # calculate attack table for queen
+    # attack table for queen is just bishop attack table + rook attack table
     def precompute_single_queen_attack_table(self, square):
-        bitboard = 0
+        bitboard = self.precompute_single_bishop_attack_table(square)
+        bitboard |= self.precompute_single_rook_attack_table(square)
+
         return bitboard
 
-    def precompute_queen_attack_tables(self):
-        bitboards = []
 
-        for x in range(0, 64):
-            bitboard = self.precompute_single_queen_attack_table(x)
-            bitboards.append(bitboard)
-
-        return bitboards
 
     # TODO: precompute_single_king_attack_table
     def precompute_single_king_attack_table(self, square):
         bitboard = 0
         return bitboard
-
-    def precompute_king_attack_tables(self):
-        bitboards = []
-
-        for x in range(0, 64):
-            bitboard = self.precompute_single_king_attack_table(x)
-            bitboards.append(bitboard)
-
-        return bitboards
-
-
-
-
 
 
 
