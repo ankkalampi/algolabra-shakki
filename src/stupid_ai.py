@@ -59,6 +59,8 @@ class ChessBoard:
         self.empty_squares = 0x0000000000000000
         self.in_check = False
 
+        
+
         # bitmasks for checking that pieces won't move outside the board
         # for pawns the masks check if opening double move is available
         self.white_pawn_double_mask = 0xFF << 8
