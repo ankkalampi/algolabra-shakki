@@ -313,7 +313,10 @@ class ChessBoard:
                 # create temporary bitboard for a single move, and combine that bitboard with the main bitboard
                 temp_bitboard = 0
                 temp_bitboard |= (1 << square)
-                move_bitboard = (temp_bitboard << (move * diagonal_scalars[diagonal])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                if diagonal_scalars[diagonal] < 0:
+                    move_bitboard = (temp_bitboard >> (move * abs(diagonal_scalars[diagonal]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                else:
+                    move_bitboard = (temp_bitboard << (move * diagonal_scalars[diagonal])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
                 bitboard |= move_bitboard
 
         return bitboard
@@ -358,7 +361,10 @@ class ChessBoard:
             for move in range(1, direction_lengths[direction] +1):
                 temp_bitboard = 0
                 temp_bitboard |= (1 << square)
-                move_bitboard = (temp_bitboard << (move * direction_scalars[direction])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                if direction_scalars[direction] < 0:
+                    move_bitboard = (temp_bitboard >> (move * abs(direction_scalars[direction]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                else:
+                    move_bitboard = (temp_bitboard << (move * direction_scalars[direction])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
                 bitboard |= move_bitboard
 
 
