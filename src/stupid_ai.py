@@ -62,6 +62,8 @@ class ChessBoard:
         # for pawns the masks check if opening double move is available
         self.white_pawn_double_mask = 0xFF << 8
         self.black_pawn_double_mask = 0xFF >> 48
+        self.white_pawn_promote_mask = self.black_pawn_double_mask
+        self.black_pawn_promote_mask = self.white_pawn_double_mask
 
         self.knight_plus6_mask      = 0x3F3F3F3F3F3F3F3F
         self.knight_plus10_mask     = 0x3F3F3F3F3F3F3F3F
@@ -212,7 +214,110 @@ class ChessBoard:
         
 
 
+    def generate_pawn_double_moves(self, pawn_board, empty_squares, white_to_move):
 
+        # mask is for checking that the pawns are in starting location
+        if white_to_move:
+            mask = self.white_pawn_double_mask
+        else:
+            mask = self.black_pawn_double_mask
+
+        unmoved_pawns = pawn_board & mask
+        unblocked_pawns = ((pawn_board << 8) & empty_squares) >> 8
+
+        double_unblocked_pawns = ((pawn_board << 16) & empty_squares) >> 16
+
+        eligible_pawns = unmoved_pawns & unblocked_pawns & double_unblocked_pawns
+
+        moves = []
+
+
+        while(eligible_pawns):
+            # find first square on location board and form move
+            location_square = self.bitscan(eligible_pawns)
+            eligible_pawns &= -eligible_pawns
+            if white_to_move:
+                moves.append(self.generate_uci(location_square, location_square << 16, 0b001))
+            else:
+                moves.append(self.generate_uci(location_square, location_square >> 16, 0b001))
+
+        return moves
+
+    def generate_pawn_single_moves(self, pawn_board, empty_squares, white_to_move):
+
+        if white_to_move:
+            mask = self.white_pawn_promote_mask
+            eligible_pawns = pawn_board & ~mask & (((pawn_board << 8) & empty_squares) << 8)
+        else:
+            mask = self.black_pawn_promote_mask
+            eligible_pawns = pawn_board & ~mask & (((pawn_board >> 8) & empty_squares) >> 8)
+
+      
+
+        moves = []
+
+        while(eligible_pawns):
+
+            location_square = self.bitscan(eligible_pawns)
+            eligible_pawns &= -eligible_pawns
+            if white_to_move:
+                moves.append(self.generate_uci(location_square, location_square << 8,0b001))
+            else:
+                moves.append(self.generate_uci(location_square, location_square >> 8, 0b001))
+
+        return moves
+
+    def generate_pawn_en_passant_moves(self, pawn_board, en_passant_board, white_to_move):
+
+        moves = []
+
+        right_pawn = en_passant_board & (pawn_board << 1)
+        left_pawn = en_passant_board & (pawn_board >> 1)
+
+        if white_to_move:
+            if right_pawn != 0:
+                moves.append(self.generate_uci(right_pawn, (right_pawn >> 7), 0b001))
+            if left_pawn != 0:
+                moves.append(self.generate_uci(left_pawn, (left_pawn >> 9), 0b001))
+        else: 
+            if right_pawn != 0:
+                moves.append(self.generate_uci(right_pawn, (right_pawn << 9), 0b001))
+            if left_pawn != 0:
+                moves.append(self.generate_uci(left_pawn, (left_pawn << 7), 0b001))
+
+        return moves
+
+    def generate_promotion_moves(self, pawn_board, empty_squares, white_to_move):
+        moves = []
+
+        if white_to_move:
+            mask = self.white_pawn_promote_mask
+            eligible_pawns = pawn_board & mask & (((pawn_board << 8) & empty_squares) << 8)
+        else:
+            mask = self.black_pawn_promote_mask
+            eligible_pawns = pawn_board & mask & (((pawn_board >> 8) & empty_squares) >> 8)
+
+        while(eligible_pawns):
+            location_square = self.bitscan(eligible_pawns)
+            eligible_pawns &= -eligible_pawns
+
+            if white_to_move:
+                moves.append(self.generate_uci(location_square, location_square << 8,0b001, 0b001))
+                moves.append(self.generate_uci(location_square, location_square << 8,0b001, 0b010))
+                moves.append(self.generate_uci(location_square, location_square << 8,0b001, 0b011))
+                moves.append(self.generate_uci(location_square, location_square << 8,0b001, 0b100))
+            else:
+                moves.append(self.generate_uci(location_square, location_square >> 8, 0b001, 0b001))
+                moves.append(self.generate_uci(location_square, location_square >> 8, 0b001, 0b010))
+                moves.append(self.generate_uci(location_square, location_square >> 8, 0b001, 0b011))
+                moves.append(self.generate_uci(location_square, location_square >> 8, 0b001, 0b100))
+
+        return moves
+
+
+        
+
+                
 
 
 
@@ -263,12 +368,25 @@ class ChessBoard:
         
         return (bitboard & -bitboard).bit_length() -1
 
-    # generate 14-bit representation for uci
-    def generate_uci(self, origin_square, destination_square, promotion = 0b00):
-        uci = 0b00000000000000
+    # generate 18-bit representation for uci
+    # this is actually not proper uci, as this has also information about the piece moving
+    # values:
+    # pawn:     0b001
+    # knight:   0b010
+    # bishop:   0b011
+    # rook:     0b100
+    # queen:    0b101
+    # king:     0b110
+    def generate_uci(self, origin_square, destination_square, piece, promotion = 0b000):
+        uci = 0b00000000000000000
         uci |= (origin_square)
         uci |= (destination_square << 6)
-        uci |= (promotion << 12)
+        uci |= (piece << 12)
+        uci |= (promotion << 15)
+
+        return uci
+
+
 
     # generate pseudo legal knight moves based on location board, precalculated attack boards and empty_squares (friendly pieces)  
     def generate_knight_moves(self, location_board, friendly_pieces):
@@ -300,7 +418,7 @@ class ChessBoard:
                 if attack_square & friendly_pieces == 0: continue
 
                 # if the attack square is on a hostile piece or an empty square, form the move
-                moves.append(self.generate_uci(location_square, attack_square))
+                moves.append(self.generate_uci(location_square, attack_square, 0b010))
 
         return moves
 
@@ -552,7 +670,7 @@ class ChessBoard:
                 if attack_square & all_pieces == 0: continue
 
                 # if the attack square is on a hostile piece or an empty square, form the move
-                moves.append(self.generate_uci(location_square, attack_square))
+                moves.append(self.generate_uci(location_square, attack_square, 0b011))
 
         return moves
 
@@ -591,7 +709,7 @@ class ChessBoard:
                 if attack_square & all_pieces == 0: continue
 
                 # if the attack square is on a hostile piece or an empty square, form the move
-                moves.append(self.generate_uci(location_square, attack_square))
+                moves.append(self.generate_uci(location_square, attack_square, 0b100))
 
         return moves
 
@@ -625,7 +743,7 @@ class ChessBoard:
                 if attack_square & all_pieces == 0: continue
 
                 # if the attack square is on a hostile piece or an empty square, form the move
-                moves.append(self.generate_uci(location_square, attack_square))
+                moves.append(self.generate_uci(location_square, attack_square, 0b101))
 
             # GET MOVES AS BISHOP
 
@@ -646,7 +764,7 @@ class ChessBoard:
                 if attack_square & all_pieces == 0: continue
 
                 # if the attack square is on a hostile piece or an empty square, form the move
-                moves.append(self.generate_uci(location_square, attack_square))
+                moves.append(self.generate_uci(location_square, attack_square, 0b101))
 
 
         return moves
