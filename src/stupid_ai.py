@@ -1,12 +1,7 @@
 import random
 import time
 
-# TODO: generate bitboards for pawn moves (partially complete) 
-# TODO: generate bitboards for knight moves
-# TODO: generate bitboards for bishop moves
-# TODO: generate bitboards for rook moves
-# TODO: generate bitboards for queen moves
-# TODO: generate bitboards for king moves (incl. castling)
+
 # TODO: generate bitboards for en passant
 
 # TODO: add logic for in_check situation to these functions
@@ -87,10 +82,13 @@ class ChessBoard:
 
         # precomputed attack tables for each piece type
         # these are used for fast lookup of possible moves
-        self.bishop_attack_tables = self.precompute_attack_tables(self.precompute_single_bishop_attack_table)
-        self.rook_attack_tables = self.precompute_attack_tables(self.precompute_single_rook_attack_table)
-        self.queen_attack_tables = self.precompute_attack_tables(self.precompute_single_queen_attack_table)
-        self.king_attack_tables = self.precompute_attack_tables(self.precompute_single_king_attack_table)
+        print("Calculating attack tables...")
+        self.precomputed_bishop_attack_tables = self.precompute_attack_tables(self.precompute_bishop_blocking_attack_tables)
+        self.precomputed_rook_attack_tables = self.precompute_attack_tables(self.precompute_rook_blocking_attack_tables)
+        self.precomputed_queen_attack_tables = self.precompute_attack_tables(self.precompute_queen_blocking_attack_tables)
+        self.precomputed_king_attack_table = self.precompute_attack_tables(self.precompute_single_king_attack_table)
+        self.precomputed_knight_attack_table = self.precompute_attack_tables(self.create_knight_attack_table)
+        print("Attack tables calculated!")
 
 
     # resets the board to opening situation
@@ -145,14 +143,6 @@ class ChessBoard:
 
         
 
-        self.generate_pawn_moves()
-        self.generate_en_passant_moves()
-        self.generate_knight_moves()
-        self.generate_bishop_moves()
-        self.generate_rook_moves()
-        self.generate_queen_moves()
-        self.generate_king_moves()
-        self.filter_illegal_moves()
         
 
 
@@ -244,48 +234,96 @@ class ChessBoard:
         
 
 
-        
-
     # generates knight moves, does not yet check if a move is illegal for checking the king
-    def generate_knight_moves(self):
-        
+    def create_knight_attack_table(self, square):
+
         # a knight has eight moves, whick on a bitboard are +6,+10,+15,+17,-6,-10,-15,-17
         # if a knight is too close to a border of the board, the moves that would land outside of the board
         # would appear on the other side of the board. That's why bitmasks are used to filter out these incorrect moves
-
-        # WHITE
-        if(self.white_to_move):
-            plus6_moves     = (self.white_knights << 6)     & self.knight_plus6_mask
-            plus10_moves    = (self.white_knights << 10)    & self.knight_plus10_mask
-            plus15_moves    = (self.white_knights << 15)    & self.knight_plus15_mask
-            plus17_moves    = (self.white_knights << 17)    & self.knight_plus17_mask
-            minus6_moves    = (self.white_knights >> 6)     & self.knight_minus6_mask
-            minus10_moves   = (self.white_knights >> 10)    & self.knight_minus10_mask
-            minus15_moves   = (self.white_knights >> 15)    & self.knight_minus15_mask
-            minus17_moves   = (self.white_knights >> 17)    & self.knight_minus17_mask
-
-        # BLACK
-        else:
-            plus6_moves     = (self.black_knights << 6)     & self.knight_plus6_mask
-            plus10_moves    = (self.black_knights << 10)    & self.knight_plus10_mask
-            plus15_moves    = (self.black_knights << 15)    & self.knight_plus15_mask
-            plus17_moves    = (self.black_knights << 17)    & self.knight_plus17_mask
-            minus6_moves    = (self.black_knights >> 6)     & self.knight_minus6_mask
-            minus10_moves   = (self.black_knights >> 10)    & self.knight_minus10_mask
-            minus15_moves   = (self.black_knights >> 15)    & self.knight_minus15_mask
-            minus17_moves   = (self.black_knights >> 17)    & self.knight_minus17_mask
-
+        plus6_moves     = (square << 6)     & self.knight_plus6_mask
+        plus10_moves    = (square << 10)    & self.knight_plus10_mask
+        plus15_moves    = (square << 15)    & self.knight_plus15_mask
+        plus17_moves    = (square << 17)    & self.knight_plus17_mask
+        minus6_moves    = (square >> 6)     & self.knight_minus6_mask
+        minus10_moves   = (square >> 10)    & self.knight_minus10_mask
+        minus15_moves   = (square >> 15)    & self.knight_minus15_mask
+        minus17_moves   = (square >> 17)    & self.knight_minus17_mask
 
         # returns a bitboard with pseudo-legal knight moves
-        return ((plus6_moves | plus10_moves | plus15_moves | plus17_moves | 
-                minus6_moves | minus10_moves | minus15_moves | minus17_moves) & self.empty_squares)
+        return (plus6_moves | plus10_moves | plus15_moves | plus17_moves |
+                 minus6_moves | minus10_moves | minus15_moves | minus17_moves)
+
+
     
     
     
 
-    # computes a bishop attack table for a single square
-    # returns bitboard
-    def precompute_single_bishop_attack_table(self, square):
+
+    # generate all tables for a piece type using precompute function of that piece
+    # param func: piece specific precomputation function
+    def precompute_attack_tables(self, func):
+        bitboards = []
+
+        for x in range(0, 64):
+            bitboard = func(x)
+            bitboards.append(bitboard)
+
+        return bitboards
+
+
+
+
+    # creates a blocked attack bitboard for a rook in a specific square
+    # this attack bitboard is based on 12-bit blocking info
+    def create_rook_blocking_attack_board(self, square, block_value):
+        bitboard = 0
+
+        # get rank and file of the square
+        rank = square // 8
+        file = square % 8
+
+        # note: edge squares won't block, that's why they don't have to be considered
+        space_right = file -1 if file > 0 else 0      # number of squares to the right 
+        space_left = 7 - file -1 if file < 8 else 0   # number of squares to the left
+        space_down = rank -1 if rank > 0 else 0      # number of squares below
+        space_up = 7 - rank -1 if rank < 8 else 0     # number of squares above
+
+        # lengths of directions
+        # order: up, right, down, left
+        direction_lengths = [space_up,
+                             space_right,
+                             space_down,
+                             space_left]
+
+        # scalars for directional bit shifts
+        # order: up, right, down, left
+        direction_scalars = [8, -1, -8, 1]
+
+        # bit representations of first blocking square of each direction
+        blocking_bits = [block_value & 0b111,
+                        (block_value >> 3) & 0b111,
+                        (block_value >> 6) & 0b111,
+                        (block_value >> 9) & 0b111]
+
+        for direction in range(0,4):
+            # if there is no blocking, attack squares are calculated from direction length
+            if blocking_bits[direction] == 0:
+                loop_length = direction_lengths[direction]
+            else:
+                loop_length = blocking_bits[direction]
+                
+            for move in range(0, loop_length):
+                temp_bitboard = 0
+                temp_bitboard |= (1 << square)
+                if direction_scalars[direction] < 0:
+                    move_bitboard = (temp_bitboard >> (move * abs(direction_scalars[direction]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                else:
+                    move_bitboard = (temp_bitboard << (move * direction_scalars[direction])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                bitboard |= move_bitboard
+
+        return bitboard
+
+    def create_bishop_blocking_attack_board(self, square, block_value):
 
         bitboard = 0
 
@@ -300,86 +338,85 @@ class ChessBoard:
 
         # diagonal lengths
         # order: northeast, southeast, southwest, northwest
-        diagonal_lengths = [min(space_right, space_up),
-                            min(space_right, space_down),
-                            min(space_down, space_left),
-                            min(space_left, space_up)]
+        # note: edge squares won't block, that's why they don't have to be considered
+        northeast = min(space_right, space_up)
+        if northeast > 0:
+            northeast -= 1
+        southeast = min(space_right, space_down)
+        if southeast > 0:
+            northeast -= 1
+        southwest = min(space_down, space_left)
+        if southwest > 0:
+            southwest -= 1
+        northwest = min(space_left, space_up)
+        if northwest > 0:
+            northwest -= 1
+
+        diagonal_lengths = [northeast,
+                            southeast,
+                            southwest,
+                            northwest]
 
         # scalars for diagonal bit shifts
         # order: northeast, southeast, southwest, northwest
         diagonal_scalars = [7, -7, -9, 9]
 
+        # bit representations of first blocking square of each direction
+        blocking_bits = [block_value & 0b111,
+                        (block_value >> 3) & 0b111,
+                        (block_value >> 6) & 0b111,
+                        (block_value >> 9) & 0b111]
+
         # add diagonals to bitboard
-        for diagonal in range (0,4):
-            for move in range(1, diagonal_lengths[diagonal] +1):
-                # create temporary bitboard for a single move, and combine that bitboard with the main bitboard
-                temp_bitboard = 0
-                temp_bitboard |= (1 << square)
-                if diagonal_scalars[diagonal] < 0:
-                    move_bitboard = (temp_bitboard >> (move * abs(diagonal_scalars[diagonal]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
-                else:
-                    move_bitboard = (temp_bitboard << (move * diagonal_scalars[diagonal])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
-                bitboard |= move_bitboard
-
-        return bitboard
-
-
-    # generate all tables for a piece type using precompute function of that piece
-    def precompute_attack_tables(self, func):
-        bitboards = []
-
-        for x in range(0, 64):
-            bitboard = func(x)
-            bitboards.append(bitboard)
-
-        return bitboards
-
-
-    # TODO: precompute_single_rook_attack_table
-    def precompute_single_rook_attack_table(self, square):
-        bitboard = 0
-
-        # get rank and file of the square
-        rank = square // 8
-        file = square % 8
-
-        space_right = file      # number of squares to the right 
-        space_left = 7 - file   # number of squares to the left
-        space_down = rank       # number of squares below
-        space_up = 7 - rank     # number of squares above
-
-        # lengths of directions
-        # order: up, right, down, left
-        direction_lengths = [space_up,
-                             space_right,
-                             space_down,
-                             space_left]
-
-        # scalars for directional bit shifts
-        # order: up, right, down, left
-        direction_scalars = [8, -1, -8, 1]
-
         for direction in range(0,4):
-            for move in range(1, direction_lengths[direction] +1):
+            # if there is no blocking, attack squares are calculated from direction length
+            if blocking_bits[direction] == 0:
+                loop_length = diagonal_lengths[direction]
+            else:
+                loop_length = blocking_bits[direction]
+                
+            for move in range(0, loop_length):
                 temp_bitboard = 0
                 temp_bitboard |= (1 << square)
-                if direction_scalars[direction] < 0:
-                    move_bitboard = (temp_bitboard >> (move * abs(direction_scalars[direction]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                if diagonal_scalars[direction] < 0:
+                    move_bitboard = (temp_bitboard >> (move * abs(diagonal_scalars[direction]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
                 else:
-                    move_bitboard = (temp_bitboard << (move * direction_scalars[direction])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                    move_bitboard = (temp_bitboard << (move * diagonal_scalars[direction])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
                 bitboard |= move_bitboard
 
-
-
         return bitboard
 
-    # calculate attack table for queen
-    # attack table for queen is just bishop attack table + rook attack table
-    def precompute_single_queen_attack_table(self, square):
-        bitboard = self.precompute_single_bishop_attack_table(square)
-        bitboard |= self.precompute_single_rook_attack_table(square)
+    # precomputes blocking attack tables for a specific square
+    def precompute_rook_blocking_attack_tables(self, square):
+        attack_tables = []
 
-        return bitboard
+        for block_value in range(0, 4096):
+            attack_tables.append(self.create_rook_blocking_attack_board(square, block_value))
+
+        return attack_tables
+
+    # precomputes blocking attack tables for a specific square
+    def precompute_bishop_blocking_attack_tables(self, square):
+        attack_tables = []
+
+        for block_value in range(0, 4096):
+            attack_tables.append(self.create_bishop_blocking_attack_board(square, block_value))
+
+        return attack_tables
+
+    # precomputes blocking attack tables for a specific square
+    def precompute_queen_blocking_attack_tables(self, square):
+        attack_tables = []
+
+        for block_value in range(0, 4096):
+            bitboard = 0
+            bitboard |= self.create_bishop_blocking_attack_board(square, block_value)
+            bitboard |= self.create_rook_blocking_attack_board(square, block_value)
+
+            attack_tables.append(bitboard)
+
+        return attack_tables
+
 
 
 
