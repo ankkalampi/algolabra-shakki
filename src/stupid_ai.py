@@ -54,6 +54,8 @@ class ChessBoard:
         self.empty_squares = 0x0000000000000000
         self.in_check = False
 
+        self.all_pieces = self.white_pieces | self.black_pieces
+
         
 
         # bitmasks for checking that pieces won't move outside the board
@@ -83,11 +85,14 @@ class ChessBoard:
         # precomputed attack tables for each piece type
         # these are used for fast lookup of possible moves
         print("Calculating attack tables...")
-        self.precomputed_bishop_attack_tables = self.precompute_attack_tables(self.precompute_bishop_blocking_attack_tables)
-        self.precomputed_rook_attack_tables = self.precompute_attack_tables(self.precompute_rook_blocking_attack_tables)
-        self.precomputed_queen_attack_tables = self.precompute_attack_tables(self.precompute_queen_blocking_attack_tables)
+        self.precomputed_bishop_blocking_attack_tables = self.precompute_attack_tables(self.precompute_bishop_blocking_attack_tables)
+        self.precomputed_rook_blocking_attack_tables = self.precompute_attack_tables(self.precompute_rook_blocking_attack_tables)
+        self.precomputed_queen_blocking_attack_tables = self.precompute_attack_tables(self.precompute_queen_blocking_attack_tables)
         self.precomputed_king_attack_table = self.precompute_attack_tables(self.precompute_single_king_attack_table)
         self.precomputed_knight_attack_table = self.precompute_attack_tables(self.create_knight_attack_table)
+        self.precomputed_rook_attack_tables = self.precompute_attack_tables(self.precompute_single_rook_attack_table)
+        self.precomputed_bishop_attack_tables = self.precompute_attack_tables(self.precompute_single_bishop_attack_table)
+        self.precomputed_queen_attack_tables = self.precompute_attack_tables(self.precompute_single_queen_attack_table)
         print("Attack tables calculated!")
 
 
@@ -118,6 +123,8 @@ class ChessBoard:
         self.empty_squares = 0x0000000000000000
         self.in_check = False
 
+        self.all_pieces = self.white_pieces | self.black_pieces
+
 
     def get_white_pieces(self):
         return ( self.black_pawns | self.black_knights | self.black_bishops |
@@ -130,7 +137,7 @@ class ChessBoard:
         
 
     # find all legal moves based on whose turn it is
-    def generate_available_moves(self):
+    def generate_available_moves(self, white_to_move):
 
         # calculate empty squares (complement of all squares with pieces)
         self.empty_squares = ~( self.white_pawns | self.white_knights | self.white_bishops |
@@ -138,10 +145,25 @@ class ChessBoard:
                                 self.black_pawns | self.black_knights | self.black_bishops |
                                 self.black_rooks | self.black_queens | self.black_king)
 
+        moves = []
+
+        if white_to_move:
+            moves.extend(self.generate_bishop_moves(self.white_bishops, self.all_pieces))
+            moves.extend(self.generate_rook_moves(self.white_rooks, self.all_pieces))
+            moves.extend(self.generate_queen_moves(self.white_queens, self.all_pieces))
+            moves.extend(self.generate_knight_moves(self.white_knights, self.all_pieces))
+        else:
+            moves.extend(self.generate_bishop_moves(self.black_bishops, self.all_pieces))
+            moves.extend(self.generate_rook_moves(self.black_rooks, self.all_pieces))
+            moves.extend(self.generate_queen_moves(self.black_queens, self.all_pieces))
+            moves.extend(self.generate_knight_moves(self.black_knights, self.all_pieces))
+
+
+        return moves
 
         
 
-        
+    
 
         
 
@@ -231,6 +253,409 @@ class ChessBoard:
 
         # returns a bitboard with pseudo-legal pawn moves
         return single_moves | double_moves
+
+
+    # finds the index of the least significant bit in a bitboard
+    # used for getting indices of piece locations
+    def bitscan(self, bitboard):
+        if bitboard == 0:
+            return None
+        
+        return (bitboard & -bitboard).bit_length() -1
+
+    # generate 14-bit representation for uci
+    def generate_uci(self, origin_square, destination_square, promotion = 0b00):
+        uci = 0b00000000000000
+        uci |= (origin_square)
+        uci |= (destination_square << 6)
+        uci |= (promotion << 12)
+
+    # generate pseudo legal knight moves based on location board, precalculated attack boards and empty_squares (friendly pieces)  
+    def generate_knight_moves(self, location_board, friendly_pieces):
+        """
+        Args:
+            location_board: a bitboard that has all knight locations
+            friendly_pieces: a bitboard that has all friendly pieces
+
+        """
+        moves = []
+
+        while(location_board):
+            # find first square on location board and get attack table
+            location_square = self.bitscan(location_board)
+            attack_board = self.precomputed_knight_attack_table[location_square]
+
+            # remove square from location board using bit magic
+            location_board &= location_board -1
+
+            # iterate through attack squares in the same way as location board is iterated
+            while(attack_board):
+                # find first square in attack board
+                attack_square = self.bitscan(attack_board)
+
+                # remove square form attack board
+                attack_board &= attack_board -1
+
+                # if the attack square is on a friendly piece, do nothing
+                if attack_square & friendly_pieces == 0: continue
+
+                # if the attack square is on a hostile piece or an empty square, form the move
+                moves.append(self.generate_uci(location_square, attack_square))
+
+        return moves
+
+    # TODO: This function shares a lot in common with similar functions. could refactor to simplify code
+    def precompute_single_rook_attack_table(self, square):
+        bitboard = 0
+
+        # get rank and file of the square
+        rank = square // 8
+        file = square % 8
+
+        space_right = file      # number of squares to the right 
+        space_left = 7 - file   # number of squares to the left
+        space_down = rank       # number of squares below
+        space_up = 7 - rank     # number of squares above
+
+        # lengths of directions
+        # order: up, right, down, left
+        direction_lengths = [space_up,
+                             space_right,
+                             space_down,
+                             space_left]
+
+        # scalars for directional bit shifts
+        # order: up, right, down, left
+        direction_scalars = [8, -1, -8, 1]
+
+        for direction in range(0,4):
+            for move in range(1, direction_lengths[direction] +1):
+                temp_bitboard = 0
+                temp_bitboard |= (1 << square)
+                if direction_scalars[direction] < 0:
+                    move_bitboard = (temp_bitboard >> (move * abs(direction_scalars[direction]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                else:
+                    move_bitboard = (temp_bitboard << (move * direction_scalars[direction])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                bitboard |= move_bitboard
+
+
+
+        return bitboard
+
+    # calculate attack table for queen
+    # attack table for queen is just bishop attack table + rook attack table
+    def precompute_single_queen_attack_table(self, square):
+        bitboard = self.precompute_single_bishop_attack_table(square)
+        bitboard |= self.precompute_single_rook_attack_table(square)
+
+        return bitboard
+
+
+    # TODO: This function shares a lot in common with similar functions. could refactor to simplify code
+     # computes a bishop attack table for a single square
+    # returns bitboard
+    def precompute_single_bishop_attack_table(self, square):
+
+        bitboard = 0
+
+        # get rank and file of the square
+        rank = square // 8
+        file = square % 8
+
+        space_right = file      # number of squares to the right 
+        space_left = 7 - file   # number of squares to the left
+        space_down = rank       # number of squares below
+        space_up = 7 - rank     # number of squares above
+
+        # diagonal lengths
+        # order: northeast, southeast, southwest, northwest
+        diagonal_lengths = [min(space_right, space_up),
+                            min(space_right, space_down),
+                            min(space_down, space_left),
+                            min(space_left, space_up)]
+
+        # scalars for diagonal bit shifts
+        # order: northeast, southeast, southwest, northwest
+        diagonal_scalars = [7, -7, -9, 9]
+
+        # add diagonals to bitboard
+        for diagonal in range (0,4):
+            for move in range(1, diagonal_lengths[diagonal] +1):
+                # create temporary bitboard for a single move, and combine that bitboard with the main bitboard
+                temp_bitboard = 0
+                temp_bitboard |= (1 << square)
+                if diagonal_scalars[diagonal] < 0:
+                    move_bitboard = (temp_bitboard >> (move * abs(diagonal_scalars[diagonal]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                else:
+                    move_bitboard = (temp_bitboard << (move * diagonal_scalars[diagonal])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                bitboard |= move_bitboard
+
+        return bitboard
+
+    def get_bitboard_of_square(self, square):
+        bitboard = 0x0000000000000000
+        bitboard |= (1 << square)
+
+        return bitboard
+
+    # TODO: This function shares a lot in common with similar functions. could refactor to simplify code
+    # creates 12-bit block value for bishop to be used to index bihop blocking attack tables
+    def get_bishop_block_value(self, square):
+        # bitboard that has the locations of pieces intersecting the attack diagonals
+        block_board = self.precomputed_bishop_attack_tables[square] & self.all_pieces
+
+        # get rank and file of the square
+        rank = square // 8
+        file = square % 8
+
+        space_right = file      # number of squares to the right 
+        space_left = 7 - file   # number of squares to the left
+        space_down = rank       # number of squares below
+        space_up = 7 - rank     # number of squares above
+
+        # diagonal lengths
+        # order: northeast, southeast, southwest, northwest
+        diagonal_lengths = [min(space_right, space_up),
+                            min(space_right, space_down),
+                            min(space_down, space_left),
+                            min(space_left, space_up)]
+
+        # scalars for diagonal bit shifts
+        # order: northeast, southeast, southwest, northwest
+        diagonal_scalars = [7, -7, -9, 9]
+
+        # block value component array for easier assignment
+        block_value_components = [  0b000,
+                                    0b000,
+                                    0b000,
+                                    0b000]
+
+        
+
+        for diagonal in range(0, 4):
+            for sq in range(0, diagonal_lengths):
+                temp_bitboard = 0
+                temp_bitboard |= (1 << square)
+                if diagonal_scalars[diagonal] < 0:
+                    move_bitboard = (temp_bitboard >> (sq * abs(diagonal_scalars[diagonal]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                else:
+                    move_bitboard = (temp_bitboard << (sq * diagonal_scalars[diagonal])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                
+                if move_bitboard & block_board != 0:
+                    block_value_components[diagonal] |= sq & 0b000
+                    break
+
+        # construct block value from block values that correspond to individual diagonals
+        block_value = 0b000000000000
+        block_value |= block_value_components[0]
+        block_value |= (block_value_components[1] << 3)
+        block_value |= (block_value_components[2] << 6)
+        block_value |= (block_value_components[3] << 9)
+
+
+        return block_value
+
+    # TODO: This function shares a lot in common with similar functions. could refactor to simplify code
+    # creates 12-bit block value for bishop to be used to index bihop blocking attack tables
+    def get_rook_block_value(self, square):
+        # bitboard that has the locations of pieces intersecting the attack diagonals
+        block_board = self.precomputed_rook_attack_tables[square] & self.all_pieces
+
+        # get rank and file of the square
+        rank = square // 8
+        file = square % 8
+
+        space_right = file      # number of squares to the right 
+        space_left = 7 - file   # number of squares to the left
+        space_down = rank       # number of squares below
+        space_up = 7 - rank     # number of squares above
+
+        # lengths of directions
+        # order: up, right, down, left
+        direction_lengths = [space_up,
+                             space_right,
+                             space_down,
+                             space_left]
+
+        # scalars for directional bit shifts
+        # order: up, right, down, left
+        direction_scalars = [8, -1, -8, 1]
+
+        # block value component array for easier assignment
+        block_value_components = [  0b000,
+                                    0b000,
+                                    0b000,
+                                    0b000]
+
+        
+
+        for diagonal in range(0, 4):
+            for sq in range(0, direction_lengths):
+                temp_bitboard = 0
+                temp_bitboard |= (1 << square)
+                if direction_scalars[diagonal] < 0:
+                    move_bitboard = (temp_bitboard >> (sq * abs(direction_scalars[diagonal]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                else:
+                    move_bitboard = (temp_bitboard << (sq * direction_scalars[diagonal])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                
+                if move_bitboard & block_board != 0:
+                    block_value_components[diagonal] |= sq & 0b000
+                    break
+
+        # construct block value from block values that correspond to individual diagonals
+        block_value = 0b000000000000
+        block_value |= block_value_components[0]
+        block_value |= (block_value_components[1] << 3)
+        block_value |= (block_value_components[2] << 6)
+        block_value |= (block_value_components[3] << 9)
+
+
+        return block_value
+
+
+
+
+
+
+
+    # generate pseudo legal knight moves based on location board, precalculated attack boards and empty_squares (all pieces)  
+    def generate_bishop_moves(self, location_board, all_pieces):
+        """
+        Args:
+            location_board: a bitboard that has all bishop locations
+            friendly_pieces: a bitboard that has all pieces
+
+        """
+        moves = []
+
+        while(location_board):
+            # find first square on location board and get attack table
+            location_square = self.bitscan(location_board)
+
+            # remove square from location board using bit magic
+            location_board &= location_board -1
+
+            # get bishop blocking value and find correct attack board
+            block_value = self.get_bishop_block_value(location_square)
+            attack_board = self.precomputed_bishop_blocking_attack_tables[location_square][block_value]
+
+
+            # iterate through attack squares in the same way as location board is iterated
+            while(attack_board):
+                # find first square in attack board
+                attack_square = self.bitscan(attack_board)
+
+                # remove square form attack board
+                attack_board &= attack_board -1
+
+                # if the attack square is on a friendly piece, do nothing
+                if attack_square & all_pieces == 0: continue
+
+                # if the attack square is on a hostile piece or an empty square, form the move
+                moves.append(self.generate_uci(location_square, attack_square))
+
+        return moves
+
+
+    # generate pseudo legal knight moves based on location board, precalculated attack boards and empty_squares (all pieces)  
+    def generate_rook_moves(self, location_board, all_pieces):
+        """
+        Args:
+            location_board: a bitboard that has all rook locations
+            friendly_pieces: a bitboard that has all pieces
+
+        """
+        moves = []
+
+        while(location_board):
+            # find first square on location board and get attack table
+            location_square = self.bitscan(location_board)
+
+            # remove square from location board using bit magic
+            location_board &= location_board -1
+
+            # get bishop blocking value and find correct attack board
+            block_value = self.get_rook_block_value(location_square)
+            attack_board = self.precomputed_rook_blocking_attack_tables[location_square][block_value]
+
+
+            # iterate through attack squares in the same way as location board is iterated
+            while(attack_board):
+                # find first square in attack board
+                attack_square = self.bitscan(attack_board)
+
+                # remove square form attack board
+                attack_board &= attack_board -1
+
+                # if the attack square is on a friendly piece, do nothing
+                if attack_square & all_pieces == 0: continue
+
+                # if the attack square is on a hostile piece or an empty square, form the move
+                moves.append(self.generate_uci(location_square, attack_square))
+
+        return moves
+
+
+    def generate_queen_moves(self, location_board, all_pieces):
+        moves = []
+        
+
+        while(location_board):
+            # find first square on location board and get attack table
+            location_square = self.bitscan(location_board)
+
+            # remove square from location board using bit magic
+            location_board &= location_board -1
+
+            # GET MOVES AS ROOK
+
+            # get rook blocking value and find correct attack board
+            block_value = self.get_rook_block_value(location_square)
+            attack_board = self.precomputed_rook_blocking_attack_tables[location_square][block_value]
+
+            # iterate through attack squares in the same way as location board is iterated
+            while(attack_board):
+                # find first square in attack board
+                attack_square = self.bitscan(attack_board)
+
+                # remove square form attack board
+                attack_board &= attack_board -1
+
+                # if the attack square is on a friendly piece, do nothing
+                if attack_square & all_pieces == 0: continue
+
+                # if the attack square is on a hostile piece or an empty square, form the move
+                moves.append(self.generate_uci(location_square, attack_square))
+
+            # GET MOVES AS BISHOP
+
+
+            # get bishop blocking value and find correct attack board
+            block_value = self.get_bishop_block_value(location_square)
+            attack_board = self.precomputed_bishop_blocking_attack_tables[location_square][block_value]
+
+            # iterate through attack squares in the same way as location board is iterated
+            while(attack_board):
+                # find first square in attack board
+                attack_square = self.bitscan(attack_board)
+
+                # remove square form attack board
+                attack_board &= attack_board -1
+
+                # if the attack square is on a friendly piece, do nothing
+                if attack_square & all_pieces == 0: continue
+
+                # if the attack square is on a hostile piece or an empty square, form the move
+                moves.append(self.generate_uci(location_square, attack_square))
+
+
+        return moves
+
+
+
+
+
+
         
 
 
@@ -272,7 +697,7 @@ class ChessBoard:
 
 
 
-
+    # TODO: This function shares a lot in common with similar functions. could refactor to simplify code
     # creates a blocked attack bitboard for a rook in a specific square
     # this attack bitboard is based on 12-bit blocking info
     def create_rook_blocking_attack_board(self, square, block_value):
@@ -323,6 +748,7 @@ class ChessBoard:
 
         return bitboard
 
+    # TODO: This function shares a lot in common with similar functions. could refactor to simplify code
     def create_bishop_blocking_attack_board(self, square, block_value):
 
         bitboard = 0
@@ -454,17 +880,7 @@ class ChessBoard:
 
 
 
-    # generates bishop moves, does not yet check if a move is illegal for checking the king
-    def generate_bishop_moves(self):
-        pass
-
-    # generates rook moves, does not yet check if a move is illegal for checking the king
-    def generate_rook_moves(self):
-        pass
-
-    # generates queen moves, does not yet check if a move is illegal for checking the king
-    def generate_queen_moves(self):
-        pass
+   
 
     # generates king moves, including castling
     def generate_king_moves(self):
