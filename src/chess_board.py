@@ -4,6 +4,10 @@ from utils import *
 from precomputation import *
 
 
+
+
+
+
 # TODO: generate bitboards for en passant
 
 # TODO: add logic for in_check situation to these functions
@@ -29,91 +33,34 @@ class ChessBoard:
     def __init__(self):
         # init bitboards for each piece type
 
+
         self.white_en_passant   = 0x0000000000000000
-        self.white_pawns        = 0x000000000000FF00
-        self.white_knights      = 0x0000000000000042
-        self.white_bishops      = 0x0000000000000024
-        self.white_rooks        = 0x0000000000000081
-        self.white_queens       = 0x0000000000000008
-        self.white_king         = 0x0000000000000010
-
-        self.white_pieces       = ( self.white_pawns | self.white_knights | self.white_bishops |
-                                    self.white_rooks | self.white_queens | self.white_king)
-
         self.black_en_passant   = 0x0000000000000000
-        self.black_pawns        = 0x00FF000000000000
-        self.black_knights      = 0x4200000000000000
-        self.black_bishops      = 0x2400000000000000
-        self.black_rooks        = 0x8100000000000000
-        self.black_queens       = 0x0800000000000000
-        self.black_king         = 0x1000000000000000
-
-        self.black_pieces       = ( self.black_pawns | self.black_knights | self.black_bishops |
-                                    self.black_rooks | self.black_queens | self.black_king)
+        
 
         self.white_to_move = True
         self.available_moves = []
         self.empty_squares = 0x0000000000000000
         self.in_check = False
 
-        self.all_pieces = self.white_pieces | self.black_pieces
-
         
 
         
-
-
-        # precomputed attack tables for each piece type
-        # these are used for fast lookup of possible moves
-        print("Calculating attack tables...")
-        self.precomputed_bishop_blocking_attack_tables = precompute_attack_tables(self.precompute_bishop_blocking_attack_tables)
-        self.precomputed_rook_blocking_attack_tables = precompute_attack_tables(self.precompute_rook_blocking_attack_tables)
-        self.precomputed_queen_blocking_attack_tables = precompute_attack_tables(self.precompute_queen_blocking_attack_tables)
-        self.precomputed_king_attack_table = precompute_attack_tables(self.precompute_single_king_attack_table)
-        self.precomputed_knight_attack_table = precompute_attack_tables(self.create_knight_attack_table)
-        self.precomputed_rook_attack_tables = precompute_attack_tables(self.precompute_single_rook_attack_table)
-        self.precomputed_bishop_attack_tables = precompute_attack_tables(self.precompute_single_bishop_attack_table)
-        self.precomputed_queen_attack_tables = precompute_attack_tables(self.precompute_single_queen_attack_table)
-        print("Attack tables calculated!")
 
 
     # resets the board to opening situation
     def reset(self):
+        
         self.white_en_passant   = 0x0000000000000000
-        self.white_pawns        = 0x000000000000FF00
-        self.white_knights      = 0x0000000000000042
-        self.white_bishops      = 0x0000000000000024
-        self.white_rooks        = 0x0000000000000081
-        self.white_queens       = 0x0000000000000008
-        self.white_king         = 0x0000000000000010
-
-        self.white_pieces       = self.get_white_pieces()
-
         self.black_en_passant   = 0x0000000000000000
-        self.black_pawns        = 0x00FF000000000000
-        self.black_knights      = 0x4200000000000000
-        self.black_bishops      = 0x2400000000000000
-        self.black_rooks        = 0x8100000000000000
-        self.black_queens       = 0x0800000000000000
-        self.black_king         = 0x1000000000000000
-
-        self.black_pieces       = self.get_black_pieces()
 
         self.white_to_move = True
         self.available_moves = []
         self.empty_squares = 0x0000000000000000
         self.in_check = False
 
-        self.all_pieces = self.white_pieces | self.black_pieces
+        
 
-
-    def get_white_pieces(self):
-        return ( self.black_pawns | self.black_knights | self.black_bishops |
-                                    self.black_rooks | self.black_queens | self.black_king)
-
-    def get_black_pieces(self):
-        return ( self.black_pawns | self.black_knights | self.black_bishops |
-                                    self.black_rooks | self.black_queens | self.black_king)
 
         
 
@@ -368,118 +315,10 @@ class ChessBoard:
     
 
     # TODO: This function shares a lot in common with similar functions. could refactor to simplify code
-    # creates 12-bit block value for bishop to be used to index bihop blocking attack tables
-    def get_bishop_block_value(self, square):
-        # bitboard that has the locations of pieces intersecting the attack diagonals
-        block_board = self.precomputed_bishop_attack_tables[square] & self.all_pieces
-
-        # get rank and file of the square
-        rank = square // 8
-        file = square % 8
-
-        space_right = file      # number of squares to the right 
-        space_left = 7 - file   # number of squares to the left
-        space_down = rank       # number of squares below
-        space_up = 7 - rank     # number of squares above
-
-        # diagonal lengths
-        # order: northeast, southeast, southwest, northwest
-        diagonal_lengths = [min(space_right, space_up),
-                            min(space_right, space_down),
-                            min(space_down, space_left),
-                            min(space_left, space_up)]
-
-        # scalars for diagonal bit shifts
-        # order: northeast, southeast, southwest, northwest
-        diagonal_scalars = [7, -7, -9, 9]
-
-        # block value component array for easier assignment
-        block_value_components = [  0b000,
-                                    0b000,
-                                    0b000,
-                                    0b000]
-
-        
-
-        for diagonal in range(0, 4):
-            for sq in range(0, diagonal_lengths):
-                temp_bitboard = 0
-                temp_bitboard |= (1 << square)
-                if diagonal_scalars[diagonal] < 0:
-                    move_bitboard = (temp_bitboard >> (sq * abs(diagonal_scalars[diagonal]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
-                else:
-                    move_bitboard = (temp_bitboard << (sq * diagonal_scalars[diagonal])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
-                
-                if move_bitboard & block_board != 0:
-                    block_value_components[diagonal] |= sq & 0b000
-                    break
-
-        # construct block value from block values that correspond to individual diagonals
-        block_value = 0b000000000000
-        block_value |= block_value_components[0]
-        block_value |= (block_value_components[1] << 3)
-        block_value |= (block_value_components[2] << 6)
-        block_value |= (block_value_components[3] << 9)
-
-
-        return block_value
+    
 
     # TODO: This function shares a lot in common with similar functions. could refactor to simplify code
-    # creates 12-bit block value for bishop to be used to index bihop blocking attack tables
-    def get_rook_block_value(self, square):
-        # bitboard that has the locations of pieces intersecting the attack diagonals
-        block_board = self.precomputed_rook_attack_tables[square] & self.all_pieces
-
-        # get rank and file of the square
-        rank = square // 8
-        file = square % 8
-
-        space_right = file      # number of squares to the right 
-        space_left = 7 - file   # number of squares to the left
-        space_down = rank       # number of squares below
-        space_up = 7 - rank     # number of squares above
-
-        # lengths of directions
-        # order: up, right, down, left
-        direction_lengths = [space_up,
-                             space_right,
-                             space_down,
-                             space_left]
-
-        # scalars for directional bit shifts
-        # order: up, right, down, left
-        direction_scalars = [8, -1, -8, 1]
-
-        # block value component array for easier assignment
-        block_value_components = [  0b000,
-                                    0b000,
-                                    0b000,
-                                    0b000]
-
-        
-
-        for diagonal in range(0, 4):
-            for sq in range(0, direction_lengths):
-                temp_bitboard = 0
-                temp_bitboard |= (1 << square)
-                if direction_scalars[diagonal] < 0:
-                    move_bitboard = (temp_bitboard >> (sq * abs(direction_scalars[diagonal]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
-                else:
-                    move_bitboard = (temp_bitboard << (sq * direction_scalars[diagonal])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
-                
-                if move_bitboard & block_board != 0:
-                    block_value_components[diagonal] |= sq & 0b000
-                    break
-
-        # construct block value from block values that correspond to individual diagonals
-        block_value = 0b000000000000
-        block_value |= block_value_components[0]
-        block_value |= (block_value_components[1] << 3)
-        block_value |= (block_value_components[2] << 6)
-        block_value |= (block_value_components[3] << 9)
-
-
-        return block_value
+    
 
 
 
@@ -623,41 +462,6 @@ class ChessBoard:
 
 
 
-
-
-        
-
-
-    
-
-
-    
-    
-    
-
-
-    
-
-
-
-    
-
-    
-
-
-
-
-    
-
-
-
-
-
-   
-
-    # generates king moves, including castling
-    def generate_king_moves(self):
-        pass
 
 
 

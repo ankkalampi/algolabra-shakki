@@ -1,6 +1,7 @@
 import random
 import time
 import chess_board as chess
+from utils import *
 
 
 # TODO: generate bitboards for en passant
@@ -60,7 +61,7 @@ def main():
     origin = 0b1000000000000
     destination = 0b100000000000000000000
 
-    print(board.get_uci(origin, destination))
+    print(get_uci(origin, destination))
 
     while True:
         opponent_move = input()
