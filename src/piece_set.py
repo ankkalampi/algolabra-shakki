@@ -5,6 +5,7 @@ import rook
 import bishop
 import queen
 import knight
+import king
 
 ###  TO THIS CLASS: generating moves by checking if they are legal
 
@@ -46,6 +47,7 @@ class PieceSet:
 
 
         attack_board |= queen.get_attack_board(self.white_queens, self.attack_tables, self.all_pieces)
+        attack_board |= king.get_attack_board(self.white_king, self.attack_tables)
 
 
 
@@ -60,6 +62,7 @@ class PieceSet:
         attack_board |= bishop.get_attack_board(self.black_bishops, self.attack_tables, self.all_pieces)
 
         attack_board |= queen.get_attack_board(self.black_queens, self.attack_tables, self.all_pieces)
+        attack_board |= king.get_attack_board(self.black_king, self.attack_tables)
 
         return attack_board
         

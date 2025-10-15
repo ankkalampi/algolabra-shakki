@@ -2,6 +2,7 @@ import random
 import time
 from utils import * 
 from precomputation import *
+from piece_set import PieceSet
 
 
 
@@ -42,6 +43,8 @@ class ChessBoard:
         self.available_moves = []
         self.empty_squares = 0x0000000000000000
         self.in_check = False
+
+        self.pieces = PieceSet()
 
         
 

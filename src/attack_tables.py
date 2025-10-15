@@ -15,4 +15,5 @@ class AttackTables:
 
         self.queen_attack_tables = precompute_attack_tables(precompute_single_queen_attack_table)
         self.queen_blocking_attack_tables = precompute_attack_tables(precompute_queen_blocking_attack_tables)
+        self.king_attack_tables = precompute_attack_tables(precompute_single_king_attack_table)
         print("Attack tables calculated!")
