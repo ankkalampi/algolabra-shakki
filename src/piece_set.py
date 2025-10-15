@@ -7,6 +7,7 @@ import queen
 import knight
 import king
 from pawn import PawnSet
+from king import KingSet
 
 ###  TO THIS CLASS: generating moves by checking if they are legal
 
@@ -25,6 +26,7 @@ class PieceSetXX:
 
         self.white_pawns = PawnSet(self.attack_tables, self.all_pieces, self.white_pieces, True)
 
+        self.white_king = KingSet(self.attack_tables, True)
         
 
         self.white_pawns        = 0x000000000000FF00
