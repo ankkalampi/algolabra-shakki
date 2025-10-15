@@ -6,13 +6,24 @@ import bishop
 import queen
 import knight
 import king
+from pawn import PawnSet
 
 ###  TO THIS CLASS: generating moves by checking if they are legal
 
 class PieceSet:
     def __init__(self):
+        self.pieces = 0x0000000000000000
+
+class PieceSetXX:
+    def __init__(self):
 
         self.attack_tables = AttackTables()
+        self.all_pieces = PieceSet()
+        self.white_pieces = PieceSet()
+        self.black_pieces = PieceSet()
+
+
+        self.white_pawns = PawnSet(self.attack_tables, self.all_pieces, self.white_pieces, True)
 
         
 

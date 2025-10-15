@@ -5,6 +5,10 @@ class AttackTables:
     def __init__(self):
 
         print("Calculating attack tables...")
+        self.white_pawn_attack_tables = precompute_attack_tables(precompute_single_white_pawn_attack_table)
+        self.black_pawn_attack_tables = precompute_attack_tables(precompute_single_black_pawn_attack_table)
+        self.white_pawn_move_tables = precompute_attack_tables(precompute_single_white_pawn_move_table)
+        self.black_pawn_move_tables = precompute_attack_tables(precompute_single_black_pawn_move_table)
         self.knight_attack_tables = precompute_attack_tables(precompute_single_knight_attack_table)
 
         self.bishop_attack_tables = precompute_attack_tables(precompute_single_bishop_attack_table)

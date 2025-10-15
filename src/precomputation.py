@@ -7,6 +7,12 @@ black_pawn_double_mask = 0xFF >> 48
 white_pawn_promote_mask = black_pawn_double_mask
 black_pawn_promote_mask = white_pawn_double_mask
 
+pawn_right_edge_mask    = 0xFEFEFEFEFEFEFEFE
+pawn_left_edge_mask     = 0x7F7F7F7F7F7F7F7F
+pawn_top_mask           = 0xFFFFFFFFFFFFFFFF
+pawn_bottom_mask        = 0xFFFFFFFFFFFFFFFF
+pawn_mask               = 0xFFFFFFFFFFFFFFFF
+
 knight_plus6_mask      = 0x3F3F3F3F3F3F3F3F
 knight_plus10_mask     = 0x3F3F3F3F3F3F3F3F
 knight_plus15_mask     = 0x7F7F7F7F7F7F7F7F
@@ -322,5 +328,27 @@ def precompute_single_knight_attack_table(square):
     return (plus6_moves | plus10_moves | plus15_moves | plus17_moves |
                 minus6_moves | minus10_moves | minus15_moves | minus17_moves)
 
+def precompute_single_white_pawn_attack_table(square):
+    plus9_move = (square << 9) & pawn_right_edge_mask & pawn_top_mask
+    plus7_move = (square << 7) & pawn_left_edge_mask & pawn_top_mask
+
+    return plus7_move | plus7_move
+
+def precompute_single_black_pawn_attack_table(square):
+    minus9_move = (square >> 9) & pawn_left_edge_mask & pawn_bottom_mask
+    minus7_move = (square >> 7) & pawn_right_edge_mask & pawn_bottom_mask
+
+    return minus7_move | minus7_move
+
+def precompute_single_white_pawn_move_table(square):
+    single_move = pawn_mask & (square <<8)
+    double_move = (square & white_pawn_double_mask) << 16
+
+    return single_move | double_move
 
 
+def precompute_single_black_pawn_move_table(square):
+    single_move = pawn_mask & (square >> 8)
+    double_move = (square & black_pawn_double_mask) >> 16
+
+    return single_move | double_move
