@@ -1,6 +1,17 @@
-from utils import bitscan
-import bishop
-import rook
+from utils import *
+from globals import *
+
+class QueenSet:
+    def __init__(self, attack_tables, is_white):
+        self.attack_tables = attack_tables
+        if is_white:
+            self.pieces = WHITE_QUEENS_START
+        else:
+            self.pieces = BLACK_QUEENS_START
+
+
+    def get_pieces(self):
+        return self.pieces
 
 
 def get_attack_board(location_board, attack_tables, all_pieces):

@@ -50,3 +50,15 @@ def get_bitboard_of_square(square):
         bitboard |= (1 << square)
 
         return bitboard
+
+def get_destination_from_move(move):
+    return (move >> 6) & 0b111111
+
+def get_origin_from_move(move):
+    return move & 0b111111
+
+def get_piece_type_from_move(move):
+    return (move >> 12) & 0b111
+
+def get_promotion_from_move(move):
+    return (move >> 15) & 0b111

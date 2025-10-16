@@ -1,13 +1,17 @@
 from utils import *
+from globals import *
 
 class KingSet:
     def __init__(self, attack_tables, is_white):
         if is_white:
-            self.king = 0x0000000000000010
+            self.king = WHITE_KING_START
         else:
-            self.king = 0x1000000000000000
+            self.king = BLACK_KING_START
         
         self.attack_tables = attack_tables
+
+    def get_pieces(self):
+        return self.king
 
 
 def get_attack_board(self):

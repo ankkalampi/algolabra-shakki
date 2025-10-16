@@ -1,9 +1,24 @@
 from utils import *
+from globals import *
+
+
+class BishopSet:
+    def __init__(self, attack_tables, is_white):
+        self.attack_tables = attack_tables
+        
+        if is_white:
+            self.pieces = WHITE_BISHOPS_START
+        else:
+            self.pieces = BLACK_BISHOPS_START
+
+
+    def get_pieces(self):
+        return self.pieces
 
 # creates 12-bit block value for bishop to be used to index bihop blocking attack tables
-def get_block_value(square, attack_tables, all_pieces):
+def get_block_value(self, square):
     # bitboard that has the locations of pieces intersecting the attack diagonals
-    block_board = attack_tables.bishop_attack_tables[square] & all_pieces
+    block_board = self.attack_tables.bishop_attack_tables[square] & self.all_pieces
 
     # get rank and file of the square
     rank = square // 8
@@ -57,15 +72,16 @@ def get_block_value(square, attack_tables, all_pieces):
     return block_value
 
 
-def get_attack_board(location_board, attack_tables, all_pieces):
+def get_attack_board(self, location_board, attack_tables, all_pieces):
 
     attack_board = 0x0000000000000000
+    location_board = self.bishops
 
     while(location_board):
         location_square = bitscan(location_board)
         location_board &= location_board -1
 
-        block_value = get_block_value(location_square, attack_tables, all_pieces)
+        block_value = self.get_block_value(location_square, attack_tables, all_pieces)
         attack_board |= attack_tables.bishop_blocking_attack_tables[block_value]
 
     return attack_board

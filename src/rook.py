@@ -1,4 +1,18 @@
 from utils import *
+from globals import *
+
+
+
+class RookSet:
+    def __init__(self, attack_tables, is_white):
+        self.attack_tables = attack_tables
+        if is_white:
+            self.pieces = WHITE_ROOKS_START
+        else:
+            self.pieces = BLACK_ROOKS_START
+
+    def get_pieces(self):
+        return self.pieces
 
 # creates 12-bit block value for bishop to be used to index bihop blocking attack tables
 def get_block_value(square, attack_tables, all_pieces):

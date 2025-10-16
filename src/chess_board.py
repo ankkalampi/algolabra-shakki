@@ -4,466 +4,149 @@ from utils import *
 from precomputation import *
 from piece_set import PieceSet
 
+from attack_tables import AttackTables
 
+from pawn import PawnSet
+from bishop import BishopSet
+from knight import KnightSet
+from rook import RookSet
+from queen import QueenSet
+from king import KingSet
 
-
-
-
-# TODO: generate bitboards for en passant
-
-# TODO: add logic for in_check situation to these functions
-
-# TODO: create function for generating attack bitboard (to check where the opponent can attack in a certain situation)
-# TODO: create function for generating attack bitboard (to check where the current player can attack in a certain situation) 
-
-# TODO: create logic for testing a move (recalculate attack bitboards)
-# TODO: create logic for removing illegal moves
-# TODO: create logic for commiting a move (update data such as in_check, white_to_move, etc)
-
-# TODO: create simple heuristics
-
-# TODO: implement minmax algorithm
-
-# TODO: create testing
-
-# TODO: fine tune heuristics
 
 
 
 class ChessBoard:
     def __init__(self):
-        # init bitboards for each piece type
-
-
-        self.white_en_passant   = 0x0000000000000000
-        self.black_en_passant   = 0x0000000000000000
         
+        self.attack_tables = AttackTables()
 
-        self.white_to_move = True
-        self.available_moves = []
-        self.empty_squares = 0x0000000000000000
-        self.in_check = False
 
-        self.pieces = PieceSet()
-
+        self.white_pawns = PawnSet(self.attack_tables, True)
+        self.white_knights = KnightSet(self.attack_tables, True)
+        self.white_bishops = BishopSet(self.attack_tables, True)
+        self.white_rooks = RookSet(self.attack_tables, True)
+        self.white_queens = QueenSet(self.attack_tables, True)
+        self.white_king = KingSet(self.attack_tables, True)
         
+        self.black_pawns = PawnSet(self.attack_tables, False)
+        self.black_knights = KnightSet(self.attack_tables, False)
+        self.black_bishops = BishopSet(self.attack_tables, False)
+        self.black_rooks = RookSet(self.attack_tables, False)
+        self.black_queens = QueenSet(self.attack_tables, False)
+        self.black_king = KingSet(self.attack_tables, False)
 
-        
+        self.white_turn = True
+        self.friendly_pieces
 
+    def get_moves(self):
+        all_pieces = 0
+        white_pieces = 0
+        black_pieces = 0
 
-    # resets the board to opening situation
-    def reset(self):
-        
-        self.white_en_passant   = 0x0000000000000000
-        self.black_en_passant   = 0x0000000000000000
+        white_pieces = (self.white_pawns.get_pieces() |
+                        self.white_knights.get_pieces() |
+                        self.white_bishops.get_pieces() |
+                        self.white_rooks.get_pieces() |
+                        self.white_queens.get_pieces() |
+                        self.white_king.get_pieces())
 
-        self.white_to_move = True
-        self.available_moves = []
-        self.empty_squares = 0x0000000000000000
-        self.in_check = False
+        black_pieces = (self.black_pawns.get_pieces() |
+                        self.black_knights.get_pieces() |
+                        self.black_bishops.get_pieces() |
+                        self.black_rooks.get_pieces() |
+                        self.black_queens.get_pieces() |
+                        self.black_king.get_pieces()) 
 
-        
+        all_pieces = white_pieces | black_pieces
 
-
-        
-
-    # find all legal moves based on whose turn it is
-    def generate_available_moves(self, white_to_move):
-
-        # calculate empty squares (complement of all squares with pieces)
-        self.empty_squares = ~( self.white_pawns | self.white_knights | self.white_bishops |
-                                self.white_rooks | self.white_queens | self.white_king |
-                                self.black_pawns | self.black_knights | self.black_bishops |
-                                self.black_rooks | self.black_queens | self.black_king)
-
-        moves = []
-
-        if white_to_move:
-            moves.extend(self.generate_bishop_moves(self.white_bishops, self.all_pieces))
-            moves.extend(self.generate_rook_moves(self.white_rooks, self.all_pieces))
-            moves.extend(self.generate_queen_moves(self.white_queens, self.all_pieces))
-            moves.extend(self.generate_knight_moves(self.white_knights, self.all_pieces))
+        if white_turn:
+            self.friendly_pieces = white_pieces
         else:
-            moves.extend(self.generate_bishop_moves(self.black_bishops, self.all_pieces))
-            moves.extend(self.generate_rook_moves(self.black_rooks, self.all_pieces))
-            moves.extend(self.generate_queen_moves(self.black_queens, self.all_pieces))
-            moves.extend(self.generate_knight_moves(self.black_knights, self.all_pieces))
+            self.friendly_pieces = black_pieces
 
+        moves = []
 
-        return moves
-
-        
-
-    
-
-        
-
-
-
-    
-
-    def push_uci(self, uci):
-        pass
-        
-
-    # filters out moves that put the moving party's king in check, as well as illegal castling
-    def filter_illegal_moves(self):
-        pass
-
-    # generates en passant moves based on the en passant bitboard
-    # NOTE: en passant table must be always updated when a move is commited!
-    def generate_en_passant_moves(self):
-        pass
-
-    # generate bitboard for showing attack squares for white
-    def generate_white_attack_board(self):
-        pass
-
-    # generate bitboard for showing attack squares for black
-    def generate_black_attack_board(self):
-        pass
+        if self.white_turn:
+            moves.extend(self.white_pawns.get_moves(all_pieces))
+            moves.extend(self.white_knights.get_moves(all_pieces))
+            moves.extend(self.white_bishops.get_moves(all_pieces))
+            moves.extend(self.white_rooks.get_moves(all_pieces))
+            moves.extend(self.white_queens.get_moves(all_pieces))
+            moves.extend(self.white_king.get_moves(all_pieces))
 
         
-
-
-    def generate_pawn_double_moves(self, pawn_board, empty_squares, white_to_move):
-
-        # mask is for checking that the pawns are in starting location
-        if white_to_move:
-            mask = self.white_pawn_double_mask
         else:
-            mask = self.black_pawn_double_mask
+            moves.extend(self.black_pawns.get_moves(all_pieces))
+            moves.extend(self.black_knights.get_moves(all_pieces))
+            moves.extend(self.black_bishops.get_moves(all_pieces))
+            moves.extend(self.black_rooks.get_moves(all_pieces))
+            moves.extend(self.black_queens.get_moves(all_pieces))
+            moves.extend(self.black_king.get_moves(all_pieces))
 
-        unmoved_pawns = pawn_board & mask
-        unblocked_pawns = ((pawn_board << 8) & empty_squares) >> 8
+        white_attack_board = self.get_white_attack_board(all_pieces)
+        black_attack_board = self.get_black_attack_board(all_pieces)
 
-        double_unblocked_pawns = ((pawn_board << 16) & empty_squares) >> 16
-
-        eligible_pawns = unmoved_pawns & unblocked_pawns & double_unblocked_pawns
-
-        moves = []
-
-
-        while(eligible_pawns):
-            # find first square on location board and form move
-            location_square = bitscan(eligible_pawns)
-            eligible_pawns &= -eligible_pawns
-            if white_to_move:
-                moves.append(generate_uci(location_square, location_square << 16, 0b001))
-            else:
-                moves.append(generate_uci(location_square, location_square >> 16, 0b001))
+        moves = self.filter_illegal_moves(moves)
 
         return moves
 
-    def generate_pawn_single_moves(self, pawn_board, empty_squares, white_to_move):
+    def get_white_attack_board(self, all_pieces):
+        return (self.white_pawns.get_attack_board(all_pieces) |
+                self.white_bishops.get_attack_board(all_pieces) |
+                self.white_knights.get_attack_board(all_pieces) |
+                self.white_rooks.get_attack_board(all_pieces) |
+                self.white_queens.get_attack_board(all_pieces) |
+                self.white_king.get_attack_board(all_pieces))
 
-        if white_to_move:
-            mask = self.white_pawn_promote_mask
-            eligible_pawns = pawn_board & ~mask & (((pawn_board << 8) & empty_squares) << 8)
-        else:
-            mask = self.black_pawn_promote_mask
-            eligible_pawns = pawn_board & ~mask & (((pawn_board >> 8) & empty_squares) >> 8)
-
-      
-
-        moves = []
-
-        while(eligible_pawns):
-
-            location_square = bitscan(eligible_pawns)
-            eligible_pawns &= -eligible_pawns
-            if white_to_move:
-                moves.append(generate_uci(location_square, location_square << 8,0b001))
-            else:
-                moves.append(generate_uci(location_square, location_square >> 8, 0b001))
-
-        return moves
-
-    def generate_pawn_en_passant_moves(self, pawn_board, en_passant_board, white_to_move):
-
-        moves = []
-
-        right_pawn = en_passant_board & (pawn_board << 1)
-        left_pawn = en_passant_board & (pawn_board >> 1)
-
-        if white_to_move:
-            if right_pawn != 0:
-                moves.append(generate_uci(right_pawn, (right_pawn >> 7), 0b001))
-            if left_pawn != 0:
-                moves.append(generate_uci(left_pawn, (left_pawn >> 9), 0b001))
-        else: 
-            if right_pawn != 0:
-                moves.append(generate_uci(right_pawn, (right_pawn << 9), 0b001))
-            if left_pawn != 0:
-                moves.append(generate_uci(left_pawn, (left_pawn << 7), 0b001))
-
-        return moves
-
-    def generate_promotion_moves(self, pawn_board, empty_squares, white_to_move):
-        moves = []
-
-        if white_to_move:
-            mask = self.white_pawn_promote_mask
-            eligible_pawns = pawn_board & mask & (((pawn_board << 8) & empty_squares) << 8)
-        else:
-            mask = self.black_pawn_promote_mask
-            eligible_pawns = pawn_board & mask & (((pawn_board >> 8) & empty_squares) >> 8)
-
-        while(eligible_pawns):
-            location_square = bitscan(eligible_pawns)
-            eligible_pawns &= -eligible_pawns
-
-            if white_to_move:
-                moves.append(generate_uci(location_square, location_square << 8,0b001, 0b001))
-                moves.append(generate_uci(location_square, location_square << 8,0b001, 0b010))
-                moves.append(generate_uci(location_square, location_square << 8,0b001, 0b011))
-                moves.append(generate_uci(location_square, location_square << 8,0b001, 0b100))
-            else:
-                moves.append(generate_uci(location_square, location_square >> 8, 0b001, 0b001))
-                moves.append(generate_uci(location_square, location_square >> 8, 0b001, 0b010))
-                moves.append(generate_uci(location_square, location_square >> 8, 0b001, 0b011))
-                moves.append(generate_uci(location_square, location_square >> 8, 0b001, 0b100))
-
-        return moves
+    def get_black_attack_board(self, all_pieces):
+        return (self.black_pawns.get_attack_board(all_pieces) |
+                self.black_bishops.get_attack_board(all_pieces) |
+                self.black_knights.get_attack_board(all_pieces) |
+                self.black_rooks.get_attack_board(all_pieces) |
+                self.black_queens.get_attack_board(all_pieces) |
+                self.black_king.get_attack_board(all_pieces))
 
 
-        
+    def filter_illegal_moves(self, moves):
+        legal_moves = []
 
-                
-
-
-
-
-
-    # generates pawn moves, does not yet check if a move is illegal for checking the king
-    def generate_pawn_moves(self):      
-        # generate bitboards for legal moves
-
-        # WHITE
-        if self.white_to_move:
-            # calculate single square pawn moves (shifting bits 8 positions left, so up one rank)
-            single_moves = (self.white_pawns << 8) & self.empty_squares 
-
-
-            unmoved_pawns = self.white_pawns & self.white_pawn_double_mask
-            unblocked_pawns = (self.white_pawns << 8) & self.empty_squares  
-
-            # calculate double square moves
-            # (moving piece must be in starting position, destination square must be empty,
-            # and the square in between has to be empty as well)
-            double_moves = (unmoved_pawns << 16) & (unblocked_pawns << 8) & self.empty_squares 
-
+        for move in moves:
             
-
-        # BLACK
-        else:
-            # calculate single square pawn moves (shifting bits 8 positions right, so down one rank)
-            single_moves = (self.black_pawns >> 8) & self.empty_squares
-
-            unmoved_pawns = self.black_pawns & self.black_pawn_double_mask
-            unblocked_pawns = (self.black_pawns << 8) & self.empty_squares
-
-            # calculate double square moves 
-            # (moving piece must be in starting position, destination square must be empty,
-            # and the square in between has to be empty as well)
-            double_moves = (unmoved_pawns >> 16) & (unblocked_pawns >> 8) & self.empty_squares 
-
-        # returns a bitboard with pseudo-legal pawn moves
-        return single_moves | double_moves
+            if self.check_move(move):
+                legal_moves.append(move)
+        
+        return legal_moves
 
 
-    
+    def check_move(self, move):
+        is_legal = True
 
-
-
-    # generate pseudo legal knight moves based on location board, precalculated attack boards and empty_squares (friendly pieces)  
-    def generate_knight_moves(self, location_board, friendly_pieces):
-        """
-        Args:
-            location_board: a bitboard that has all knight locations
-            friendly_pieces: a bitboard that has all friendly pieces
-
-        """
-        moves = []
-
-        while(location_board):
-            # find first square on location board and get attack table
-            location_square = bitscan(location_board)
-            attack_board = self.precomputed_knight_attack_table[location_square]
-
-            # remove square from location board using bit magic
-            location_board &= location_board -1
-
-            # iterate through attack squares in the same way as location board is iterated
-            while(attack_board):
-                # find first square in attack board
-                attack_square = bitscan(attack_board)
-
-                # remove square form attack board
-                attack_board &= attack_board -1
-
-                # if the attack square is on a friendly piece, do nothing
-                if attack_square & friendly_pieces == 0: continue
-
-                # if the attack square is on a hostile piece or an empty square, form the move
-                moves.append(generate_uci(location_square, attack_square, 0b010))
-
-        return moves
-
-    
-
-
-    
-
-    
-
-    # TODO: This function shares a lot in common with similar functions. could refactor to simplify code
-    
-
-    # TODO: This function shares a lot in common with similar functions. could refactor to simplify code
-    
-
-
-
-
-
-
-
-    # generate pseudo legal knight moves based on location board, precalculated attack boards and empty_squares (all pieces)  
-    def generate_bishop_moves(self, location_board, all_pieces):
-        """
-        Args:
-            location_board: a bitboard that has all bishop locations
-            friendly_pieces: a bitboard that has all pieces
-
-        """
-        moves = []
-
-        while(location_board):
-            # find first square on location board and get attack table
-            location_square = bitscan(location_board)
-
-            # remove square from location board using bit magic
-            location_board &= location_board -1
-
-            # get bishop blocking value and find correct attack board
-            block_value = self.get_bishop_block_value(location_square)
-            attack_board = self.precomputed_bishop_blocking_attack_tables[location_square][block_value]
-
-
-            # iterate through attack squares in the same way as location board is iterated
-            while(attack_board):
-                # find first square in attack board
-                attack_square = bitscan(attack_board)
-
-                # remove square form attack board
-                attack_board &= attack_board -1
-
-                # if the attack square is on a friendly piece, do nothing
-                if attack_square & all_pieces == 0: continue
-
-                # if the attack square is on a hostile piece or an empty square, form the move
-                moves.append(generate_uci(location_square, attack_square, 0b011))
-
-        return moves
-
-
-    # generate pseudo legal knight moves based on location board, precalculated attack boards and empty_squares (all pieces)  
-    def generate_rook_moves(self, location_board, all_pieces):
-        """
-        Args:
-            location_board: a bitboard that has all rook locations
-            friendly_pieces: a bitboard that has all pieces
-
-        """
-        moves = []
-
-        while(location_board):
-            # find first square on location board and get attack table
-            location_square = bitscan(location_board)
-
-            # remove square from location board using bit magic
-            location_board &= location_board -1
-
-            # get bishop blocking value and find correct attack board
-            block_value = self.get_rook_block_value(location_square)
-            attack_board = self.precomputed_rook_blocking_attack_tables[location_square][block_value]
-
-
-            # iterate through attack squares in the same way as location board is iterated
-            while(attack_board):
-                # find first square in attack board
-                attack_square = bitscan(attack_board)
-
-                # remove square form attack board
-                attack_board &= attack_board -1
-
-                # if the attack square is on a friendly piece, do nothing
-                if attack_square & all_pieces == 0: continue
-
-                # if the attack square is on a hostile piece or an empty square, form the move
-                moves.append(generate_uci(location_square, attack_square, 0b100))
-
-        return moves
-
-
-    def generate_queen_moves(self, location_board, all_pieces):
-        moves = []
         
 
-        while(location_board):
-            # find first square on location board and get attack table
-            location_square = bitscan(location_board)
+        if self.check_if_trying_to_capture_friendly_piece(move):
+            is_legal = False
+        else: 
+            if self.check_if_friendly_king_in_check(move):
+                is_legal = False
 
-            # remove square from location board using bit magic
-            location_board &= location_board -1
+        return is_legal
 
-            # GET MOVES AS ROOK
+    def check_if_friendly_king_in_check(self, move):
+        pass
 
-            # get rook blocking value and find correct attack board
-            block_value = self.get_rook_block_value(location_square)
-            attack_board = self.precomputed_rook_blocking_attack_tables[location_square][block_value]
+    def check_if_trying_to_capture_friendly_piece(self, move):
+        destination = get_destination_from_move(move)
 
-            # iterate through attack squares in the same way as location board is iterated
-            while(attack_board):
-                # find first square in attack board
-                attack_square = bitscan(attack_board)
-
-                # remove square form attack board
-                attack_board &= attack_board -1
-
-                # if the attack square is on a friendly piece, do nothing
-                if attack_square & all_pieces == 0: continue
-
-                # if the attack square is on a hostile piece or an empty square, form the move
-                moves.append(generate_uci(location_square, attack_square, 0b101))
-
-            # GET MOVES AS BISHOP
+        return ((destination & self.friendly_pieces) != 0)
 
 
-            # get bishop blocking value and find correct attack board
-            block_value = self.get_bishop_block_value(location_square)
-            attack_board = self.precomputed_bishop_blocking_attack_tables[location_square][block_value]
-
-            # iterate through attack squares in the same way as location board is iterated
-            while(attack_board):
-                # find first square in attack board
-                attack_square = bitscan(attack_board)
-
-                # remove square form attack board
-                attack_board &= attack_board -1
-
-                # if the attack square is on a friendly piece, do nothing
-                if attack_square & all_pieces == 0: continue
-
-                # if the attack square is on a hostile piece or an empty square, form the move
-                moves.append(generate_uci(location_square, attack_square, 0b101))
-
-
-        return moves
+    def attempt_move(self, move):
+        pass
 
 
 
+        
 
 
 
