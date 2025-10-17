@@ -111,7 +111,7 @@ def generate_moves_white(location_board, all_pieces):
             move_square = bitscan(return_board)
             return_board &= return_board -1
 
-            moves.append(generate_uci(location_square, move_square, 0b001, 0b001))
+            moves.append(generate_move(location_square, move_square, 0b001, 0b001))
 
     # promotion moves
     while(location_board_promotion):
@@ -127,10 +127,10 @@ def generate_moves_white(location_board, all_pieces):
             move_square = bitscan(return_board)
             return_board &= return_board -1
 
-            moves.append(generate_uci(location_square, move_square, 0b001, 0b010)) # knight
-            moves.append(generate_uci(location_square, move_square, 0b001, 0b011)) # bishop
-            moves.append(generate_uci(location_square, move_square, 0b001, 0b100)) # rook
-            moves.append(generate_uci(location_square, move_square, 0b001, 0b101)) # queen
+            moves.append(generate_move(location_square, move_square, 0b001, 0b010)) # knight
+            moves.append(generate_move(location_square, move_square, 0b001, 0b011)) # bishop
+            moves.append(generate_move(location_square, move_square, 0b001, 0b100)) # rook
+            moves.append(generate_move(location_square, move_square, 0b001, 0b101)) # queen
 
     return moves
 
@@ -161,7 +161,7 @@ def generate_moves_black(location_board, all_pieces):
             move_square = bitscan(return_board)
             return_board &= return_board -1
 
-            moves.append(generate_uci(location_square, move_square, 0b001, 0b001))
+            moves.append(generate_move(location_square, move_square, 0b001, 0b001))
 
     # promotion moves
     while(location_board_promotion):
@@ -177,10 +177,10 @@ def generate_moves_black(location_board, all_pieces):
             move_square = bitscan(return_board)
             return_board &= return_board -1
 
-            moves.append(generate_uci(location_square, move_square, 0b001, 0b010)) # knight
-            moves.append(generate_uci(location_square, move_square, 0b001, 0b011)) # bishop
-            moves.append(generate_uci(location_square, move_square, 0b001, 0b100)) # rook
-            moves.append(generate_uci(location_square, move_square, 0b001, 0b101)) # queen
+            moves.append(generate_move(location_square, move_square, 0b001, 0b010)) # knight
+            moves.append(generate_move(location_square, move_square, 0b001, 0b011)) # bishop
+            moves.append(generate_move(location_square, move_square, 0b001, 0b100)) # rook
+            moves.append(generate_move(location_square, move_square, 0b001, 0b101)) # queen
 
     return moves
 

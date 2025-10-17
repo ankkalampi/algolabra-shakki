@@ -40,7 +40,7 @@ def get_block_value(square, all_pieces):
     
 
     for diagonal in range(0, 4):
-        for sq in range(0, direction_lengths):
+        for sq in range(0, direction_lengths[diagonal]):
             temp_bitboard = 0
             temp_bitboard |= (1 << square)
             if direction_scalars[diagonal] < 0:
@@ -72,7 +72,7 @@ def get_attack_board(location_board, all_pieces):
         location_board &= location_board -1
 
         block_value = get_block_value(location_square, all_pieces)
-        attack_board |= attack_tables.rook_blocking_attack_tables[block_value]
+        attack_board |= attack_tables.rook_blocking_attack_tables[location_square][block_value]
 
     return attack_board
 
@@ -93,6 +93,6 @@ def get_moves(location_board, all_pieces):
             move_square = bitscan(return_board)
             return_board &= return_board -1
 
-            moves.append(generate_uci(location_square, move_square, 0b011))
+            moves.append(generate_move(location_square, move_square, 0b011))
 
     return moves

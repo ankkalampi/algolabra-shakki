@@ -10,7 +10,7 @@ from utils import *
 from globals import * 
 
 class Situation:
-    def __init(self):
+    def __init__(self):
         self.white_pawns = WHITE_PAWNS_START
         self.white_knights = WHITE_KNIGHTS_START
         self.white_bishops = WHITE_BISHOPS_START

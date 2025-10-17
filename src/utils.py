@@ -67,6 +67,8 @@ def get_bitboard_of_square(square):
 
         return bitboard
 
+
+
 def get_destination_from_move(move):
     return (move >> 6) & 0b111111
 

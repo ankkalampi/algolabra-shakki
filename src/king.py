@@ -6,7 +6,10 @@ from attack_tables import get_attack_tables
 
 def get_attack_board(location_board, all_pieces):
     attack_tables = get_attack_tables()
-    return attack_tables.king_attack_tables[location_board]
+    location_square = bitscan(location_board)
+
+    
+    return attack_tables.king_attack_tables[location_square]
 
 def get_moves(location_board, all_pieces):
     moves = []
@@ -25,7 +28,7 @@ def get_moves(location_board, all_pieces):
             move_square = bitscan(return_board)
             return_board &= return_board -1
 
-            moves.append(generate_uci(location_square, move_square, 0b011))
+            moves.append(generate_move(location_square, move_square, 0b011))
 
     return moves
 

@@ -1,6 +1,6 @@
 import random
 import time
-import chess_board as chess
+from chess_board import ChessBoard
 from utils import *
 
 
@@ -10,11 +10,11 @@ from utils import *
 
 
 
-def set_board(board: chess.ChessBoard, board_position:str):
+def set_board(board: ChessBoard, board_position:str):
     print(f"Set board to {board_position}!")
     board.set_fen(board_position)
 
-def make_move(board: chess.ChessBoard):
+def make_move(board: ChessBoard):
     legal_moves = [get_uci(move) for move in list(board.legal_moves)]
     print(f"I found {len(legal_moves)} legal moves: {', '.join(legal_moves)}")
     choice = random.choice(legal_moves)
@@ -28,7 +28,7 @@ def make_move(board: chess.ChessBoard):
 
 
 
-
+# TODO: King get_attack_board location_square is None DEBUG NEEDED
 
 
 
@@ -36,7 +36,7 @@ def make_move(board: chess.ChessBoard):
 
 def main():
 
-    board = chess.ChessBoard()
+    board = ChessBoard()
 
     
 

@@ -38,7 +38,7 @@ def get_moves(location_board, all_pieces):
             move_square = bitscan(return_board)
             return_board &= return_board -1
 
-            moves.append(generate_uci(location_square, move_square, 0b011))
+            moves.append(generate_move(location_square, move_square, 0b011))
 
     return moves
     
