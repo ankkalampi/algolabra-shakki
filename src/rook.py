@@ -3,20 +3,12 @@ from globals import *
 
 
 
-class RookSet:
-    def __init__(self, attack_tables, is_white):
-        self.attack_tables = attack_tables
-        if is_white:
-            self.pieces = WHITE_ROOKS_START
-        else:
-            self.pieces = BLACK_ROOKS_START
-
-    def get_pieces(self):
-        return self.pieces
+from attack_tables import get_attack_tables
 
 # creates 12-bit block value for bishop to be used to index bihop blocking attack tables
-def get_block_value(square, attack_tables, all_pieces):
+def get_block_value(square, all_pieces):
     # bitboard that has the locations of pieces intersecting the attack diagonals
+    attack_tables = get_attack_tables()
     block_board = attack_tables.rook_attack_tables[square] & all_pieces
 
     # get rank and file of the square
@@ -70,15 +62,37 @@ def get_block_value(square, attack_tables, all_pieces):
 
     return block_value
 
-def get_attack_board(location_board, attack_tables, all_pieces):
+def get_attack_board(location_board, all_pieces):
 
-    attack_board = 0x0000000000000000
+    attack_board = EMPTY_BOARD
+    attack_tables = get_attack_tables()
 
     while(location_board):
         location_square = bitscan(location_board)
         location_board &= location_board -1
 
-        block_value = get_block_value(location_square, attack_tables, all_pieces)
+        block_value = get_block_value(location_square, all_pieces)
         attack_board |= attack_tables.rook_blocking_attack_tables[block_value]
 
     return attack_board
+
+def get_moves(location_board, all_pieces):
+    moves = []
+
+
+    while(location_board):
+        location_square = bitscan(location_board)
+        location_board &= location_board -1
+
+        
+        return_board = EMPTY_BOARD
+        return_board |= (get_attack_board(location_board, all_pieces))
+        
+        
+        while(return_board):
+            move_square = bitscan(return_board)
+            return_board &= return_board -1
+
+            moves.append(generate_uci(location_square, move_square, 0b011))
+
+    return moves

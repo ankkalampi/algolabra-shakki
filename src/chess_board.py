@@ -26,4 +26,8 @@ class ChessBoard:
         self.situation = generate_situation(move, self.situation)
         self.moves = get_moves(self.situation)
 
+    def reset(self):
+        self.situation = Situation()
+        self.moves = []
+
 

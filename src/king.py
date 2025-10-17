@@ -1,31 +1,31 @@
 from utils import *
 from globals import *
 
-class KingSet:
-    def __init__(self, attack_tables, is_white):
-        if is_white:
-            self.king = WHITE_KING_START
-        else:
-            self.king = BLACK_KING_START
-        
-        self.attack_tables = attack_tables
-
-    def get_pieces(self):
-        return self.king
+from attack_tables import get_attack_tables
 
 
-def get_attack_board(self):
-    return self.attack_tables.king_attack_tables[self.king]
+def get_attack_board(location_board, all_pieces):
+    attack_tables = get_attack_tables()
+    return attack_tables.king_attack_tables[location_board]
 
-def generate_moves(self):
+def get_moves(location_board, all_pieces):
     moves = []
-    attack_board = self.attack_tables.king_attack_tables[self.king]
 
-    while(attack_board):
-        move_square = bitscan(attack_board)
-        attack_board &= attack_board -1
 
-        moves.append(generate_uci(self.king, move_square, 0b110, 0b000))
+    while(location_board):
+        location_square = bitscan(location_board)
+        location_board &= location_board -1
+
+        
+        return_board = EMPTY_BOARD
+        return_board |= (get_attack_board(location_board, all_pieces))
+        
+        
+        while(return_board):
+            move_square = bitscan(return_board)
+            return_board &= return_board -1
+
+            moves.append(generate_uci(location_square, move_square, 0b011))
 
     return moves
 

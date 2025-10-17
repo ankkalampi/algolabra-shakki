@@ -2,7 +2,7 @@ from precomputation import *
 
 _attack_tables = None
 
-def get_tables():
+def get_attack_tables():
     global _attack_tables
     if _attack_tables is None:
         _attack_tables = _generate_tables()
