@@ -1,6 +1,8 @@
 from utils import *
 from globals import *
 
+import attack_tables
+
 white_pawn_double_mask = 0xFF << 8
 black_pawn_double_mask = 0xFF >> 48
 white_pawn_single_mask = 0xFF ^ 0xFFFFFFFFFFFFFFFF
