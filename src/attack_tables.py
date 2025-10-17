@@ -1,5 +1,15 @@
 from precomputation import *
 
+_attack_tables = None
+
+def get_tables():
+    global _attack_tables
+    if _attack_tables is None:
+        _attack_tables = _generate_tables()
+    return _attack_tables
+
+def _generate_tables():
+    return AttackTables()
 
 class AttackTables:
     def __init__(self):

@@ -163,7 +163,7 @@ class PawnSet:
             self.moved_pawns ^= square
 
     def generate_moves(self):
-        if is_white:
+        if self.is_white:
             return self.generate_moves_white()
         else:
             return self.generate_moves_black()
