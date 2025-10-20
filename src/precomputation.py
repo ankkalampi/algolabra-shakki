@@ -35,6 +35,16 @@ king_northwest_mask    = 0xFEFEFEFEFEFEFEFE
 
 
 def precompute_single_rook_attack_table(square):
+    """
+    Compute and return an attack table (bitboard)
+    for rook in a specific square
+
+    Parameters:
+    square: the square index (integer, in range (0,64))
+
+    Returns:
+    bitboard: 64-bit bitboard representation of atack board/table
+    """
     bitboard = 0
 
     # get rank and file of the square
