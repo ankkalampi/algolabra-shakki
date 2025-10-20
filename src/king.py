@@ -21,7 +21,7 @@ def get_moves(location_board, all_pieces):
 
         
         return_board = EMPTY_BOARD
-        return_board |= (get_attack_board(location_board, all_pieces))
+        return_board |= (get_attack_board(location_square, all_pieces))
         
         
         while(return_board):

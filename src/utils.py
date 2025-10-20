@@ -1,5 +1,5 @@
 
-
+from globals import *
 # finds the index of the least significant bit in a bitboard
     # used for getting indices of piece locations
 def bitscan(bitboard):
@@ -62,7 +62,7 @@ def get_uci(move):
     return f"{chr(97+origin_file)}{origin_rank}{chr(97+destination_file)}{destination_rank}{promotion}"
 
 def get_bitboard_of_square(square):
-        bitboard = 0x0000000000000000
+        bitboard = EMPTY_BOARD
         bitboard |= (1 << square)
 
         return bitboard

@@ -20,9 +20,7 @@ class ChessBoard:
     def __init__(self):
         
         self.situation = Situation()
-        print("TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(self.situation.white_turn)
-        print("TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        
         self.legal_moves = []
 
     def execute_uci(self, uci):

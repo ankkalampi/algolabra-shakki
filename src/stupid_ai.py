@@ -2,6 +2,9 @@ import random
 import time
 from chess_board import ChessBoard
 from utils import *
+from attack_tables import get_attack_tables
+
+from precomputation import *
 
 
 
@@ -17,8 +20,10 @@ def set_board(board: ChessBoard, board_position:str):
 def make_move(board: ChessBoard):
     legal_moves = [get_uci(move) for move in list(board.legal_moves)]
     print(f"I found {len(legal_moves)} legal moves: {', '.join(legal_moves)}")
+    
     choice = random.choice(legal_moves)
-    board.push_uci(choice)
+    board.execute_uci(choice)
+    
 
     return choice
 
@@ -39,6 +44,9 @@ def main():
     board = ChessBoard()
 
     
+    
+
+    
 
     while True:
         opponent_move = input()
@@ -55,6 +63,7 @@ def main():
             print(f"I chose {choice}!")
             # example about posting a move
             print(f"MOVE:{choice}")
+            
         elif opponent_move.startswith("MOVE:"):
             move = opponent_move.removeprefix("MOVE:")
             board.execute_uci(move)

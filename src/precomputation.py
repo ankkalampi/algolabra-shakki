@@ -1,4 +1,6 @@
 
+from globals import EMPTY_BOARD
+from utils import *
 
 # bitmasks for checking that pieces won't move outside the board
 # for pawns the masks check if opening double move is available
@@ -25,7 +27,7 @@ knight_minus17_mask    = 0xF0F0F0F0F0F0F0F0
 king_north_mask        = 0xFFFFFFFFFFFFFFFF  
 king_northeast_mask    = 0x7F7F7F7F7F7F7F7F
 king_east_mask         = 0x7F7F7F7F7F7F7F7F
-king_southeast_mask    = 0x7F7F7F7F7F7F7F7F
+king_southeast_mask    = 0xFEFEFEFEFEFEFEFE
 king_south_mask        = 0xFFFFFFFFFFFFFFFF
 king_southwest_mask    = 0xFEFEFEFEFEFEFEFE
 king_west_mask         = 0xFEFEFEFEFEFEFEFE
@@ -125,9 +127,10 @@ def precompute_attack_tables(func):
     bitboards = []
 
     for x in range(0, 64):
+        
         bitboard = func(x)
         bitboards.append(bitboard)
-
+    
     return bitboards
 
 
@@ -165,31 +168,33 @@ def precompute_queen_blocking_attack_tables(square):
 
 # precompute single attack table for king moves
 def precompute_single_king_attack_table(square):
-    bitboard = 0
+    bitboard = EMPTY_BOARD
+
+    square_bitboard = get_bitboard_of_square(square)
 
     # add move north
-    bitboard |= (square << 8) & king_north_mask
+    bitboard |= (square_bitboard << 8) & king_north_mask
 
     # add move northeast
-    bitboard |= (square << 7) & king_northeast_mask
+    bitboard |= (square_bitboard << 7) & king_northeast_mask
 
     # add move east
-    bitboard |= (square >> 1) & king_east_mask
+    bitboard |= (square_bitboard >> 1) & king_east_mask
 
     # add move southeast
-    bitboard |= (square >> 7) & king_southeast_mask
+    bitboard |= (square_bitboard >> 7) & king_southeast_mask
 
     # add move south
-    bitboard |= (square >> 8) & king_south_mask
+    bitboard |= (square_bitboard >> 8) & king_south_mask
 
     # add move southwest
-    bitboard |= (square >> 9) & king_southwest_mask
+    bitboard |= (square_bitboard >> 9) & king_southwest_mask
 
     # add move west
-    bitboard |= (square << 1) & king_west_mask
+    bitboard |= (square_bitboard << 1) & king_west_mask
 
     # add move northwest
-    bitboard |= (square << 9) & king_northwest_mask
+    bitboard |= (square_bitboard << 9) & king_northwest_mask
 
     return bitboard
 
@@ -312,17 +317,19 @@ def create_bishop_blocking_attack_board(square, block_value):
 # generates knight moves, does not yet check if a move is illegal for checking the king
 def precompute_single_knight_attack_table(square):
 
+    square_bitboard = get_bitboard_of_square(square)
+
     # a knight has eight moves, whick on a bitboard are +6,+10,+15,+17,-6,-10,-15,-17
     # if a knight is too close to a border of the board, the moves that would land outside of the board
     # would appear on the other side of the board. That's why bitmasks are used to filter out these incorrect moves
-    plus6_moves     = (square << 6)     & knight_plus6_mask
-    plus10_moves    = (square << 10)    & knight_plus10_mask
-    plus15_moves    = (square << 15)    & knight_plus15_mask
-    plus17_moves    = (square << 17)    & knight_plus17_mask
-    minus6_moves    = (square >> 6)     & knight_minus6_mask
-    minus10_moves   = (square >> 10)    & knight_minus10_mask
-    minus15_moves   = (square >> 15)    & knight_minus15_mask
-    minus17_moves   = (square >> 17)    & knight_minus17_mask
+    plus6_moves     = (square_bitboard << 6)     & knight_plus6_mask
+    plus10_moves    = (square_bitboard << 10)    & knight_plus10_mask
+    plus15_moves    = (square_bitboard << 15)    & knight_plus15_mask
+    plus17_moves    = (square_bitboard << 17)    & knight_plus17_mask
+    minus6_moves    = (square_bitboard >> 6)     & knight_minus6_mask
+    minus10_moves   = (square_bitboard >> 10)    & knight_minus10_mask
+    minus15_moves   = (square_bitboard >> 15)    & knight_minus15_mask
+    minus17_moves   = (square_bitboard >> 17)    & knight_minus17_mask
 
     # returns a bitboard with pseudo-legal knight moves
     return (plus6_moves | plus10_moves | plus15_moves | plus17_moves |

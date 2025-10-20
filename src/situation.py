@@ -97,6 +97,7 @@ def get_moves(situation):
     return legal_moves
 
 def test_move(move, situation):
+    #print("testing move")
     if is_attempting_to_capture_friendly_piece(move, situation):
         return False
     new_situation = generate_situation(move, situation)
@@ -139,8 +140,11 @@ def is_attempting_to_capture_friendly_piece(move, situation):
 
 # using this function assumes that the move is not trying to capture a friendly piece
 def generate_situation(move, situation):
+    #print("generating new situation")
     new_situation = situation
-    new_situation.white_turn = not situation.white_turn
+    #print(f"Old white_turn: {situation.white_turn}")
+    new_situation.white_turn =   not situation.white_turn
+    #print(f"New white_turn: {new_situation.white_turn}")
 
     origin = get_origin_from_move(move)
     destination = get_destination_from_move(move)
