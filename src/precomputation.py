@@ -1,6 +1,6 @@
 
-from globals import EMPTY_BOARD
-from utils import *
+from src.globals import EMPTY_BOARD
+from src.utils import *
 
 # bitmasks for checking that pieces won't move outside the board
 # for pawns the masks check if opening double move is available
@@ -43,7 +43,7 @@ def precompute_single_rook_attack_table(square):
     square: the square index (integer, in range (0,64))
 
     Returns:
-    bitboard: 64-bit bitboard representation of atack board/table
+    bitboard: 64-bit bitboard representation of attack board/table
     """
     bitboard = 0
 
@@ -93,7 +93,16 @@ def precompute_single_queen_attack_table(square):
     # computes a bishop attack table for a single square
 # returns bitboard
 def precompute_single_bishop_attack_table(square):
+    """
+    Compute and return an attack table (bitboard)
+    for biashop in a specific square
 
+    Parameters:
+    square: the square index (integer, in range (0,64))
+
+    Returns:
+    bitboard: 64-bit bitboard representation of attack board/table
+    """
     bitboard = 0
 
     # get rank and file of the square
@@ -114,12 +123,14 @@ def precompute_single_bishop_attack_table(square):
 
     # scalars for diagonal bit shifts
     # order: northeast, southeast, southwest, northwest
-    diagonal_scalars = [7, -7, -9, 9]
+    diagonal_scalars = [7, -9, -7, 9]
 
     # add diagonals to bitboard
     for diagonal in range (0,4):
-        for move in range(1, diagonal_lengths[diagonal] +1):
+        move_bitboard = 0
+        for move in range(1, diagonal_lengths[diagonal]+1 ):
             # create temporary bitboard for a single move, and combine that bitboard with the main bitboard
+            
             temp_bitboard = 0
             temp_bitboard |= (1 << square)
             if diagonal_scalars[diagonal] < 0:

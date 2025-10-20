@@ -1,5 +1,5 @@
 
-from globals import *
+from src.globals import *
 # finds the index of the least significant bit in a bitboard
     # used for getting indices of piece locations
 def bitscan(bitboard):
