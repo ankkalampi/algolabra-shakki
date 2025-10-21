@@ -105,6 +105,15 @@ def try_move(move, situation):
 
 
 def is_friendly_king_in_check(situation):
+    """
+    Check if friendly king is in check in given situation
+
+    Args:
+    situation: situation object
+
+    Returns:
+    True if friendly king is in check in given situation
+    """
     all_pieces = get_all_pieces(situation)
 
     enemy_attack_board = 0

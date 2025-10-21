@@ -92,3 +92,118 @@ def test_is_attempting_to_capture_friendly_piece(move, white_turn, expected, moc
         f"  Expected:   {expected}\n"
         f"  Got:        {result}"
     )
+
+
+def mock_situation_in_white_check(situation):
+    sit = situation
+    sit.black_queens = 0x0000000000400000
+    sit.white_bishops = 0x0000000000900000
+    return sit
+
+
+def mock_situation_in_black_check(situation):
+    sit = situation
+    sit.white_bishops = 0x0048000000000000
+    sit.white_turn = False
+    return sit
+
+
+def mock_situation_not_in_white_check(situation):
+    sit = situation
+    sit.black_queens =  0x0000000000400000
+    sit.white_pawns =   0x000000004007B800
+    sit.black_bishops = 0x0000000400004000
+    return sit
+
+
+def mock_situation_not_in_black_check(situation):
+    sit = situation
+    sit.white_queens = 0x0001000000000000
+    sit.white_turn = False
+    return sit
+
+
+# TEST MOVES
+WHITE_ESCAPE_CHECK_SUCCESS =    0b000100000011110000
+WHITE_ESCAPE_CHECK_FAIL =       0b000100001101110000
+WHITE_MOVE_INTO_CHECK =         0b000100000101110000
+WHITE_BLOCK_CHECK =             0b010100001101011000
+WHITE_MOVE_WITHOUT_CHECK =      0b001011010011001000
+WHITE_DISCOVER_CHECK =          0b001101010101001000
+
+BLACK_ESCAPE_CHECK_SUCCESS =    0b111100110100110000
+BLACK_ESCAPE_CHECK_FAIL =       0b111000111001100000
+BLACK_MOVE_INTO_CHECK =         0b111100110011110000
+
+BLACK_MOVE_WITHOUT_CHECK =      0b111100111101110000
+
+
+test_cases = [
+    pytest.param(
+        mock_situation_in_white_check,
+        WHITE_ESCAPE_CHECK_SUCCESS,
+        False,
+        id="White is in check but escapes"
+        ),
+    pytest.param(
+        mock_situation_in_white_check,
+        WHITE_ESCAPE_CHECK_FAIL,
+        True,
+        id="White is in check and fails to escape"
+        ),
+    pytest.param(
+        mock_situation_in_white_check,
+        WHITE_BLOCK_CHECK,
+        False,
+        id="White is in check but blocks it"
+        ),
+    pytest.param(
+        mock_situation_not_in_white_check,
+        WHITE_MOVE_INTO_CHECK,
+        True,
+        id="White wasn't in check, moves into check"
+        ),
+    pytest.param(
+        mock_situation_not_in_white_check,
+        WHITE_MOVE_WITHOUT_CHECK,
+        True,
+        id="White wasn't in check, and still isn't"
+        ),
+
+    pytest.param(
+        mock_situation_in_black_check,
+        BLACK_ESCAPE_CHECK_SUCCESS,
+        False,
+        id="Black is in check but escapes"
+        ),
+    pytest.param(
+        mock_situation_in_black_check,
+        BLACK_ESCAPE_CHECK_FAIL,
+        True,
+        id="Black is in check and fails to escape"
+        ),
+    
+    pytest.param(
+        mock_situation_not_in_black_check,
+        BLACK_MOVE_INTO_CHECK,
+        True,
+        id="Black wasn't in check, moves into check"
+        ),
+    pytest.param(
+        mock_situation_not_in_black_check,
+        BLACK_MOVE_WITHOUT_CHECK,
+        True,
+        id="Black wasn't in check, and still isn't"
+        ),
+    ]
+
+@pytest.mark.parametrize("function, move, expected", test_cases)
+def test_is_friendly_king_in_check(function, move, expected, mock_situation):
+    situation = function(mock_situation)
+    result = is_attempting_to_capture_friendly_piece(move, situation)
+
+    assert result == expected, (
+        f"Failed test\n"
+        f"  Expected:   {expected}\n"
+        f"  Got:        {result}"
+    )
