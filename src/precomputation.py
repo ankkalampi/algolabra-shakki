@@ -418,14 +418,17 @@ def precompute_single_white_pawn_attack_table(square):
     Returns:
     bitboard: 64-bit bitboard representation of attack board/table
     """
-    plus9_move = (square << 9) & pawn_right_edge_mask & pawn_top_mask
-    plus7_move = (square << 7) & pawn_left_edge_mask & pawn_top_mask
+    square_bitboard = get_bitboard_of_square(square)
+    plus9_move = (square_bitboard << 9) & pawn_right_edge_mask & pawn_top_mask
+    plus7_move = (square_bitboard << 7) & pawn_left_edge_mask & pawn_top_mask
 
     return plus9_move | plus7_move
 
 def precompute_single_black_pawn_attack_table(square):
-    minus9_move = (square >> 9) & pawn_left_edge_mask & pawn_bottom_mask
-    minus7_move = (square >> 7) & pawn_right_edge_mask & pawn_bottom_mask
+    square_bitboard = get_bitboard_of_square(square)
+
+    minus9_move = (square_bitboard >> 9) & pawn_left_edge_mask & pawn_bottom_mask
+    minus7_move = (square_bitboard >> 7) & pawn_right_edge_mask & pawn_bottom_mask
 
     return minus9_move | minus7_move
 
@@ -440,15 +443,17 @@ def precompute_single_white_pawn_move_table(square):
     Returns:
     bitboard: 64-bit bitboard representation of attack board/table
     """
-    single_move = pawn_mask & (square <<8)
-    double_move = (square & white_pawn_double_mask) << 16
+    square_bitboard = get_bitboard_of_square(square)
+    single_move = pawn_mask & (square_bitboard <<8)
+    double_move = (square_bitboard & white_pawn_double_mask) << 16
 
     return single_move | double_move
 
 
 def precompute_single_black_pawn_move_table(square):
-    single_move = pawn_mask & (square >> 8)
-    double_move = (square & black_pawn_double_mask) >> 16
+    square_bitboard = get_bitboard_of_square(square)
+    single_move = pawn_mask & (square_bitboard >> 8)
+    double_move = (square_bitboard & black_pawn_double_mask) >> 16
 
     return single_move | double_move
 
