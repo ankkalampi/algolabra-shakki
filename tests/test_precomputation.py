@@ -38,8 +38,216 @@ KING_TOP_RIGHT_EXPECTED_BOARD = 0x0203000000000000
 KING_TOP_LEFT_EXPECTED_BOARD = 0x40C0000000000000
 KING_CENTER_EXPECTED_BOARD = 0x0000001C141C0000
 
+WHITE_PAWN_UNMOVED_LEFT_EDGE = 15
+WHITE_PAWN_UNMOVED_RIGHT_EDGE = 8
+WHITE_PAWN_UNMOVED_MIDDLE = 11
+WHITE_PAWN_MOVED_LEFT_EDGE = 31
+WHITE_PAWN_MOVED_RIGHT_EDGE = 24
+WHITE_PAWN_MOVED_MIDDLE = 27
+
+BLACK_PAWN_UNMOVED_LEFT_EDGE = 55
+BLACK_PAWN_UNMOVED_RIGHT_EDGE = 48
+BLACK_PAWN_UNMOVED_MIDDLE = 51
+BLACK_PAWN_MOVED_LEFT_EDGE = 25
+BLACK_PAWN_MOVED_RIGHT_EDGE = 32
+BLACK_PAWN_MOVED_MIDDLE = 39
+
+
+WHITE_PAWN_EXPECTED_UNMOVED_LEFT_EDGE_MOVEMENT =    0x0000000080800000
+WHITE_PAWN_EXPECTED_UNMOVED_RIGHT_EDGE_MOVEMENT =   0x0000000001010000
+WHITE_PAWN_EXPECTED_UNMOVED_MIDDLE_MOVEMENT =       0x0000000008080000
+WHITE_PAWN_EXPECTED_MOVED_LEFT_EDGE_MOVEMENT =      0x0000008000000000
+WHITE_PAWN_EXPECTED_MOVED_RIGHT_EDGE_MOVEMENT =     0x0000000100000000
+WHITE_PAWN_EXPECTED_MOVED_MIDDLE_MOVEMENT =         0x0000001000000000
+
+BLACK_PAWN_EXPECTED_UNMOVED_LEFT_EDGE_MOVEMENT =    0x0000808000000000
+BLACK_PAWN_EXPECTED_UNMOVED_RIGHT_EDGE_MOVEMENT =   0x0000010100000000
+BLACK_PAWN_EXPECTED_UNMOVED_MIDDLE_MOVEMENT =       0x0000080800000000
+BLACK_PAWN_EXPECTED_MOVED_LEFT_EDGE_MOVEMENT =      0x0000000001010000
+BLACK_PAWN_EXPECTED_MOVED_RIGHT_EDGE_MOVEMENT =     0x0000000008080000
+BLACK_PAWN_EXPECTED_MOVED_MIDDLE_MOVEMENT =         0x0000000080800000
+
+WHITE_PAWN_EXPECTED_UNMOVED_LEFT_EDGE_ATTACK =      0x0000000000400000 
+WHITE_PAWN_EXPECTED_UNMOVED_RIGHT_EDGE_ATTACK =     0x0000000000020000
+WHITE_PAWN_EXPECTED_UNMOVED_MIDDLE_ATTACK =         0x0000000000140000
+WHITE_PAWN_EXPECTED_MOVED_LEFT_EDGE_ATTACK  =       0x0000000200000000
+WHITE_PAWN_EXPECTED_MOVED_RIGHT_EDGE_ATTACK =       0x0000004000000000
+WHITE_PAWN_EXPECTED_MOVED_MIDDLE_ATTACK =           0x0000001400000000
+
+BLACK_PAWN_EXPECTED_UNMOVED_LEFT_EDGE_ATTACK =      0x0000400000000000
+BLACK_PAWN_EXPECTED_UNMOVED_RIGHT_EDGE_ATTACK =     0x0000020000000000
+BLACK_PAWN_EXPECTED_UNMOVED_MIDDLE_ATTACK =         0x0000140000000000
+BLACK_PAWN_EXPECTED_MOVED_LEFT_EDGE_ATTACK =        0x0000000080800000
+BLACK_PAWN_EXPECTED_MOVED_RIGHT_EDGE_ATTACK =       0x0000000001010000
+BLACK_PAWN_EXPECTED_MOVED_MIDDLE_ATTACK =           0x0000000014000000
+
+
 
 test_cases = [
+    # unmoved white pawn capture 
+    pytest.param(
+        precompute_single_white_pawn_attack_table,
+        WHITE_PAWN_UNMOVED_LEFT_EDGE,
+        WHITE_PAWN_EXPECTED_UNMOVED_LEFT_EDGE_ATTACK,
+        id="Unmoved white pawn capture table in left edge"
+    ),
+    pytest.param(
+        precompute_single_white_pawn_attack_table,
+        WHITE_PAWN_UNMOVED_RIGHT_EDGE,
+        WHITE_PAWN_EXPECTED_UNMOVED_RIGHT_EDGE_ATTACK,
+        id="Unmoved white pawn capture table in right edge"
+    ),
+    pytest.param(
+        precompute_single_white_pawn_attack_table,
+        WHITE_PAWN_UNMOVED_MIDDLE,
+        WHITE_PAWN_EXPECTED_UNMOVED_MIDDLE_ATTACK,
+        id="Unmoved white pawn capture table in middle"
+    ),
+
+    # moved white pawn capture 
+    pytest.param(
+        precompute_single_white_pawn_attack_table,
+        WHITE_PAWN_MOVED_LEFT_EDGE,
+        WHITE_PAWN_EXPECTED_MOVED_LEFT_EDGE_ATTACK,
+        id="Moved white pawn capture table in left edge"
+    ),
+    pytest.param(
+        precompute_single_white_pawn_attack_table,
+        WHITE_PAWN_MOVED_RIGHT_EDGE,
+        WHITE_PAWN_EXPECTED_MOVED_RIGHT_EDGE_ATTACK,
+        id="Moved white pawn capture table in right edge"
+    ),
+    pytest.param(
+        precompute_single_white_pawn_attack_table,
+        WHITE_PAWN_MOVED_MIDDLE,
+        WHITE_PAWN_EXPECTED_MOVED_MIDDLE_ATTACK,
+        id="Moved white pawn capture table in middle"
+    ),
+
+    # unmoved white pawn movement 
+    pytest.param(
+        precompute_single_white_pawn_move_table,
+        WHITE_PAWN_UNMOVED_LEFT_EDGE,
+        WHITE_PAWN_EXPECTED_UNMOVED_LEFT_EDGE_MOVEMENT,
+        id="Unmoved white pawn movement table in left edge"
+    ),
+    pytest.param(
+        precompute_single_white_pawn_move_table,
+        WHITE_PAWN_UNMOVED_RIGHT_EDGE,
+        WHITE_PAWN_EXPECTED_UNMOVED_RIGHT_EDGE_MOVEMENT,
+        id="Unmoved white pawn movement table in right edge"
+    ),
+    pytest.param(
+        precompute_single_white_pawn_move_table,
+        WHITE_PAWN_UNMOVED_MIDDLE,
+        WHITE_PAWN_EXPECTED_UNMOVED_MIDDLE_MOVEMENT,
+        id="Unmoved white pawn movement table in middle"
+    ),
+
+    # moved white pawn movement 
+    pytest.param(
+        precompute_single_white_pawn_move_table,
+        WHITE_PAWN_MOVED_LEFT_EDGE,
+        WHITE_PAWN_EXPECTED_MOVED_LEFT_EDGE_MOVEMENT,
+        id="Moved white pawn movement table in left edge"
+    ),
+    pytest.param(
+        precompute_single_white_pawn_move_table,
+        WHITE_PAWN_MOVED_RIGHT_EDGE,
+        WHITE_PAWN_EXPECTED_MOVED_RIGHT_EDGE_MOVEMENT,
+        id="Moved white pawn movement table in right edge"
+    ),
+    pytest.param(
+        precompute_single_white_pawn_move_table,
+        WHITE_PAWN_MOVED_MIDDLE,
+        WHITE_PAWN_EXPECTED_MOVED_MIDDLE_MOVEMENT,
+        id="Moved white pawn movement table in middle"
+    ),
+
+
+    # unmoved black pawn capture 
+    pytest.param(
+        precompute_single_black_pawn_attack_table,
+        BLACK_PAWN_UNMOVED_LEFT_EDGE,
+        BLACK_PAWN_EXPECTED_UNMOVED_LEFT_EDGE_ATTACK,
+        id="Unmoved black pawn capture table in left edge"
+    ),
+    pytest.param(
+        precompute_single_black_pawn_attack_table,
+        BLACK_PAWN_UNMOVED_RIGHT_EDGE,
+        BLACK_PAWN_EXPECTED_UNMOVED_RIGHT_EDGE_ATTACK,
+        id="Unmoved black pawn capture table in right edge"
+    ),
+    pytest.param(
+        precompute_single_black_pawn_attack_table,
+        BLACK_PAWN_UNMOVED_MIDDLE,
+        BLACK_PAWN_EXPECTED_UNMOVED_MIDDLE_ATTACK,
+        id="Unmoved black pawn capture table in middle"
+    ),
+
+    # unmoved black pawn capture 
+    pytest.param(
+        precompute_single_black_pawn_attack_table,
+        BLACK_PAWN_MOVED_LEFT_EDGE,
+        BLACK_PAWN_EXPECTED_MOVED_LEFT_EDGE_ATTACK,
+        id="Moved black pawn capture table in left edge"
+    ),
+    pytest.param(
+        precompute_single_black_pawn_attack_table,
+        BLACK_PAWN_MOVED_RIGHT_EDGE,
+        BLACK_PAWN_EXPECTED_MOVED_RIGHT_EDGE_ATTACK,
+        id="Moved black pawn capture table in right edge"
+    ),
+    pytest.param(
+        precompute_single_black_pawn_attack_table,
+        BLACK_PAWN_MOVED_MIDDLE,
+        BLACK_PAWN_EXPECTED_MOVED_MIDDLE_ATTACK,
+        id="Moved black pawn capture table in middle"
+    ),
+
+    # unmoved black pawn movement 
+    pytest.param(
+        precompute_single_black_pawn_move_table,
+        BLACK_PAWN_UNMOVED_LEFT_EDGE,
+        BLACK_PAWN_EXPECTED_UNMOVED_LEFT_EDGE_MOVEMENT,
+        id="Unmoved black pawn movement table in left edge"
+    ),
+    pytest.param(
+        precompute_single_black_pawn_move_table,
+        BLACK_PAWN_UNMOVED_RIGHT_EDGE,
+        BLACK_PAWN_EXPECTED_UNMOVED_RIGHT_EDGE_MOVEMENT,
+        id="Unmoved black pawn movement table in right edge"
+    ),
+    pytest.param(
+        precompute_single_black_pawn_move_table,
+        BLACK_PAWN_UNMOVED_MIDDLE,
+        BLACK_PAWN_EXPECTED_UNMOVED_MIDDLE_MOVEMENT,
+        id="Unmoved black pawn movement table in middle"
+    ),
+
+    # moved black pawn movement 
+    pytest.param(
+        precompute_single_black_pawn_move_table,
+        BLACK_PAWN_MOVED_LEFT_EDGE,
+        BLACK_PAWN_EXPECTED_MOVED_LEFT_EDGE_MOVEMENT,
+        id="Moved black pawn movement table in left edge"
+    ),
+    pytest.param(
+        precompute_single_black_pawn_move_table,
+        BLACK_PAWN_MOVED_RIGHT_EDGE,
+        BLACK_PAWN_EXPECTED_MOVED_RIGHT_EDGE_MOVEMENT,
+        id="Moved black pawn movement table in right edge"
+    ),
+    pytest.param(
+        precompute_single_black_pawn_move_table,
+        BLACK_PAWN_MOVED_MIDDLE,
+        BLACK_PAWN_EXPECTED_MOVED_MIDDLE_MOVEMENT,
+        id="Moved black pawn movement table in middle"
+    ),
+
+
+
+
     pytest.param(
         precompute_single_knight_attack_table,
         BOTTOM_RIGHT_CORNER,

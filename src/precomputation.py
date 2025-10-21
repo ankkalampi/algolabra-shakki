@@ -408,6 +408,16 @@ def precompute_single_knight_attack_table(square):
                 minus6_moves | minus10_moves | minus15_moves | minus17_moves)
 
 def precompute_single_white_pawn_attack_table(square):
+    """
+    Compute and return an capture table (bitboard)
+    for white pawn in a specific square
+
+    Args:
+    square: the square index (integer, in range (0,64))
+
+    Returns:
+    bitboard: 64-bit bitboard representation of attack board/table
+    """
     plus9_move = (square << 9) & pawn_right_edge_mask & pawn_top_mask
     plus7_move = (square << 7) & pawn_left_edge_mask & pawn_top_mask
 
@@ -420,6 +430,16 @@ def precompute_single_black_pawn_attack_table(square):
     return minus9_move | minus7_move
 
 def precompute_single_white_pawn_move_table(square):
+    """
+    Compute and return a movement table (bitboard)
+    for white pawn in a specific square 
+
+    Args:
+    square: the square index (integer, in range (0,64))
+
+    Returns:
+    bitboard: 64-bit bitboard representation of attack board/table
+    """
     single_move = pawn_mask & (square <<8)
     double_move = (square & white_pawn_double_mask) << 16
 
