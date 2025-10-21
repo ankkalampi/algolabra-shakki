@@ -5,7 +5,7 @@ from src.utils import *
 # bitmasks for checking that pieces won't move outside the board
 # for pawns the masks check if opening double move is available
 white_pawn_double_mask = 0xFF << 8
-black_pawn_double_mask = 0xFF >> 48
+black_pawn_double_mask = 0xFF << 48
 white_pawn_promote_mask = black_pawn_double_mask
 black_pawn_promote_mask = white_pawn_double_mask
 

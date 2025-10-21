@@ -90,13 +90,13 @@ def get_moves(situation):
     legal_moves = []
 
     for move in moves:
-        if test_move(move, situation):
+        if try_move(move, situation):
             legal_moves.append(move)
 
 
     return legal_moves
 
-def test_move(move, situation):
+def try_move(move, situation):
     #print("testing move")
     if is_attempting_to_capture_friendly_piece(move, situation):
         return False
@@ -131,10 +131,20 @@ def is_friendly_king_in_check(situation):
     
 
 def is_attempting_to_capture_friendly_piece(move, situation):
-    
-    destination = get_destination_from_move(move)
+    """
+    Check if given move would result in capturing a friendly piece
 
-    return (get_all_friendly_pieces(situation) & destination) == 0
+    Args:
+    move: move in 12bit format (not uci)
+    situation: situation object
+
+    Returns:
+    True if move is attempting to capture friendly piece
+    """
+    
+    destination_bitboard = get_bitboard_of_square(get_destination_from_move(move))
+
+    return (get_all_friendly_pieces(situation) & destination_bitboard) != 0
 
 
 
