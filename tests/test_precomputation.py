@@ -163,6 +163,37 @@ test_cases = [
         QUEEN_CENTER_EXPECTED_BOARD,
         id="Queen attack table in center square (index 27)"
     ),
+
+    pytest.param(
+        precompute_single_king_attack_table,
+        BOTTOM_RIGHT_CORNER,
+        KING_BOTTOM_RIGHT_EXPECTED_BOARD,
+        id="King attack table in bottom right corner"
+    ),
+    pytest.param(
+        precompute_single_king_attack_table,
+        BOTTOM_LEFT_CORNER,
+        KING_BOTTOM_LEFT_EXPECTED_BOARD,
+        id="King attack table in bottom left corner"
+    ),
+    pytest.param(
+        precompute_single_king_attack_table,
+        TOP_RIGHT_CORNER,
+        KING_TOP_RIGHT_EXPECTED_BOARD,
+        id="King attack table in top right corner"
+    ),
+    pytest.param(
+        precompute_single_king_attack_table,
+        TOP_LEFT_CORNER,
+        KING_TOP_LEFT_EXPECTED_BOARD,
+        id="King attack table in top left corner"
+    ),
+    pytest.param(
+        precompute_single_king_attack_table,
+        CENTER,
+        KING_CENTER_EXPECTED_BOARD,
+        id="King attack table in center square (index 27)"
+    ),
 ]
 
 @pytest.mark.parametrize("function, square_value, expected", test_cases)
@@ -171,10 +202,77 @@ def test_single_attack_bitboard_precomputations(function, square_value, expected
 
     assert bitboard == expected, (
         f"Failed with input square {square_value}:\n"
-        f"  Expected:   {format_bitboard(expected)}\n"
-        f"  Got:        {format_bitboard(bitboard)}"
+        f"  Expected:   0x{format_bitboard(expected)}\n"
+        f"  Got:        0x{format_bitboard(bitboard)}"
     )
 
 def format_bitboard(bitboard):
     return format(bitboard, '016x')
+
+ROOK_ONE_LANE_BLOCKED = 0b010000000000
+ROOK_TWO_LANES_BLOCKED = 0b011001000000
+ROOK_THREE_LANES_BLOCKED = 0b011010001000
+ROOK_FOUR_LANES_BLOCKED = 0b010010001011
+
+ROOK_EXPECTED_BLOCKING_BOARD_ONE = 0x00000808F7080808
+ROOK_EXPECTED_BLOCKING_BOARD_TWO = 0x00080808F4080808
+ROOK_EXPECTED_BLOCKING_BOARD_THREE = 0x00080808F6080000
+ROOK_EXPECTED_BLOCKING_BOARD_FOUR = 0x0000080876080000
+
+#BISHOP_ONE_LANE_BLOCKED
+#BISHOP_TWO_LANES_BLOCKED
+#BISHOP_THREE_LANES_BLOCKED
+#BISHOP_FOUR_LANES_BLOCKED
+
+#BISHOP_EXPECTED_BLOCKING_BOARD_ONE
+#BISHOP_EXPECTED_BLOCKING_BOARD_TWO
+#BISHOP_EXPECTED_BLOCKING_BOARD_THREE
+#BISHOP_EXPECTED_BLOCKING_BOARD_FOUR
+
+test_cases = [
+    pytest.param(
+        create_rook_blocking_attack_board,
+        CENTER,
+        ROOK_ONE_LANE_BLOCKED,
+        ROOK_EXPECTED_BLOCKING_BOARD_ONE,
+        id="Rook blocking table in center square when one lane blocked"
+    ),
+    pytest.param(
+        create_rook_blocking_attack_board,
+        CENTER,
+        ROOK_TWO_LANES_BLOCKED,
+        ROOK_EXPECTED_BLOCKING_BOARD_TWO,
+        id="Rook blocking table in center square when two lanes blocked"
+    ),
+    pytest.param(
+        create_rook_blocking_attack_board,
+        CENTER,
+        ROOK_THREE_LANES_BLOCKED,
+        ROOK_EXPECTED_BLOCKING_BOARD_THREE,
+        id="Rook blocking table in center square when three lanes blocked"
+    ),
+    pytest.param(
+        create_rook_blocking_attack_board,
+        CENTER,
+        ROOK_FOUR_LANES_BLOCKED,
+        ROOK_EXPECTED_BLOCKING_BOARD_FOUR,
+        id="Rook blocking table in center square when four lanes blocked"
+    ),
+
+    
+
+    
+]
+
+
+@pytest.mark.parametrize("function, square_value, block_value, expected", test_cases)
+def test_blocking_attack_bitboard_precomputations(function, square_value, block_value, expected):
+    bitboard = function(square_value, block_value)
+
+    assert bitboard == expected, (
+        f"Failed with input square {square_value}:\n"
+        f"  Expected:   0x{format_bitboard(expected)}\n"
+        f"  Got:        0x{format_bitboard(bitboard)}"
+    )
+
 

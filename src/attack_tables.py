@@ -1,4 +1,4 @@
-from precomputation import *
+from src.precomputation import *
 
 _attack_tables = None
 

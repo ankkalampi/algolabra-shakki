@@ -1,13 +1,13 @@
-import pawn
-import knight
-import bishop
-import rook
-import queen
-import king
+import src.pawn as pawn
+import src.knight as knight
+import src.bishop as bishop
+import src.rook as rook
+import src.queen as queen
+import src.king as king
 
-from utils import *
+from src.utils import *
 
-from globals import * 
+from src.globals import * 
 
 class Situation:
     def __init__(self):

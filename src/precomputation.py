@@ -16,20 +16,20 @@ pawn_bottom_mask        = 0xFFFFFFFFFFFFFFFF
 pawn_mask               = 0xFFFFFFFFFFFFFFFF
 
 knight_plus6_mask      = 0x3F3F3F3F3F3F3F3F
-knight_plus10_mask     = 0x3F3F3F3F3F3F3F3F
+knight_plus10_mask     = 0xFCFCFCFCFCFCFCFC
 knight_plus15_mask     = 0x7F7F7F7F7F7F7F7F
-knight_plus17_mask     = 0x7F7F7F7F7F7F7F7F
-knight_minus6_mask     = 0xFEFEFEFEFEFEFEFE
-knight_minus10_mask    = 0xFCFCFCFCFCFCFCFC
-knight_minus15_mask    = 0xF8F8F8F8F8F8F8F8
-knight_minus17_mask    = 0xF0F0F0F0F0F0F0F0
+knight_plus17_mask     = 0xFEFEFEFEFEFEFEFE
+knight_minus6_mask     = 0xFCFCFCFCFCFCFCFC
+knight_minus10_mask    = 0x3F3F3F3F3F3F3F3F
+knight_minus15_mask    = 0xFEFEFEFEFEFEFEFE
+knight_minus17_mask    = 0x7F7F7F7F7F7F7F7F
 
 king_north_mask        = 0xFFFFFFFFFFFFFFFF  
 king_northeast_mask    = 0x7F7F7F7F7F7F7F7F
 king_east_mask         = 0x7F7F7F7F7F7F7F7F
 king_southeast_mask    = 0xFEFEFEFEFEFEFEFE
 king_south_mask        = 0xFFFFFFFFFFFFFFFF
-king_southwest_mask    = 0xFEFEFEFEFEFEFEFE
+king_southwest_mask    = 0x7F7F7F7F7F7F7F7F
 king_west_mask         = 0xFEFEFEFEFEFEFEFE
 king_northwest_mask    = 0xFEFEFEFEFEFEFEFE
 
@@ -39,7 +39,7 @@ def precompute_single_rook_attack_table(square):
     Compute and return an attack table (bitboard)
     for rook in a specific square
 
-    Parameters:
+    Args:
     square: the square index (integer, in range (0,64))
 
     Returns:
@@ -89,15 +89,13 @@ def precompute_single_queen_attack_table(square):
 
     return bitboard
 
-# TODO: This function shares a lot in common with similar functions. could refactor to simplify code
-    # computes a bishop attack table for a single square
-# returns bitboard
+
 def precompute_single_bishop_attack_table(square):
     """
     Compute and return an attack table (bitboard)
     for biashop in a specific square
 
-    Parameters:
+    Args:
     square: the square index (integer, in range (0,64))
 
     Returns:
@@ -187,8 +185,18 @@ def precompute_queen_blocking_attack_tables(square):
     return attack_tables
 
 
-# precompute single attack table for king moves
+
 def precompute_single_king_attack_table(square):
+    """
+    Compute and return an attack table (bitboard)
+    for king in a specific square
+
+    Args:
+    square: the square index (integer, in range (0,64))
+
+    Returns:
+    bitboard: 64-bit bitboard representation of attack board/table
+    """
     bitboard = EMPTY_BOARD
 
     square_bitboard = get_bitboard_of_square(square)
@@ -223,6 +231,20 @@ def precompute_single_king_attack_table(square):
 # creates a blocked attack bitboard for a rook in a specific square
 # this attack bitboard is based on 12-bit blocking info
 def create_rook_blocking_attack_board(square, block_value):
+    """
+    Compute and return attack table (bitboard)
+    for rook in a specific square based on blocking value.
+    Blocking value describes distance to nearest blocking piece
+    per direction. Blocking value is a 12bit number
+    with 3 bits for each direction 
+
+    Args:
+    square: the square index (integer, in range (0,64))
+    block_value: 12bit blocking value
+
+    Returns:
+    bitboard: 64-bit bitboard representation of attack board/table
+    """
     bitboard = 0
 
     # get rank and file of the square
@@ -247,19 +269,21 @@ def create_rook_blocking_attack_board(square, block_value):
     direction_scalars = [8, -1, -8, 1]
 
     # bit representations of first blocking square of each direction
-    blocking_bits = [block_value & 0b111,
-                    (block_value >> 3) & 0b111,
+    blocking_bits = [
+                    (block_value >> 9) & 0b111,
                     (block_value >> 6) & 0b111,
-                    (block_value >> 9) & 0b111]
+                    (block_value >> 3) & 0b111,
+                    block_value & 0b111,
+                    ]
 
     for direction in range(0,4):
         # if there is no blocking, attack squares are calculated from direction length
         if blocking_bits[direction] == 0:
-            loop_length = direction_lengths[direction]
+            loop_length = direction_lengths[direction] +1
         else:
             loop_length = blocking_bits[direction]
             
-        for move in range(0, loop_length):
+        for move in range(1, loop_length +1):
             temp_bitboard = 0
             temp_bitboard |= (1 << square)
             if direction_scalars[direction] < 0:
@@ -270,9 +294,22 @@ def create_rook_blocking_attack_board(square, block_value):
 
     return bitboard
 
-# TODO: This function shares a lot in common with similar functions. could refactor to simplify code
-def create_bishop_blocking_attack_board(square, block_value):
 
+def create_bishop_blocking_attack_board(square, block_value):
+    """
+    Compute and return attack table (bitboard)
+    for bishop in a specific square based on blocking value.
+    Blocking value describes distance to nearest blocking piece
+    per direction. Blocking value is a 12bit number
+    with 3 bits for each direction 
+
+    Args:
+    square: the square index (integer, in range (0,64))
+    block_value: 12bit blocking value
+
+    Returns:
+    bitboard: 64-bit bitboard representation of attack board/table
+    """
     bitboard = 0
 
     # get rank and file of the square
@@ -335,8 +372,18 @@ def create_bishop_blocking_attack_board(square, block_value):
     return bitboard
 
 
-# generates knight moves, does not yet check if a move is illegal for checking the king
+
 def precompute_single_knight_attack_table(square):
+    """
+    Compute and return an attack table (bitboard)
+    for knight in a specific square
+
+    Args:
+    square: the square index (integer, in range (0,64))
+
+    Returns:
+    bitboard: 64-bit bitboard representation of attack board/table
+    """
 
     square_bitboard = get_bitboard_of_square(square)
 

@@ -1,6 +1,6 @@
-from utils import *
-from globals import *
-from attack_tables import get_attack_tables
+from src.utils import *
+from src.globals import *
+from src.attack_tables import get_attack_tables
 
 
 
