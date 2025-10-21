@@ -219,15 +219,15 @@ ROOK_EXPECTED_BLOCKING_BOARD_TWO = 0x00080808F4080808
 ROOK_EXPECTED_BLOCKING_BOARD_THREE = 0x00080808F6080000
 ROOK_EXPECTED_BLOCKING_BOARD_FOUR = 0x0000080876080000
 
-#BISHOP_ONE_LANE_BLOCKED
-#BISHOP_TWO_LANES_BLOCKED
-#BISHOP_THREE_LANES_BLOCKED
-#BISHOP_FOUR_LANES_BLOCKED
+BISHOP_ONE_LANE_BLOCKED =       0b010000000000
+BISHOP_TWO_LANES_BLOCKED =      0b001000000011
+BISHOP_THREE_LANES_BLOCKED =    0b000001010011
+BISHOP_FOUR_LANES_BLOCKED =     0b001010010011
 
-#BISHOP_EXPECTED_BLOCKING_BOARD_ONE
-#BISHOP_EXPECTED_BLOCKING_BOARD_TWO
-#BISHOP_EXPECTED_BLOCKING_BOARD_THREE
-#BISHOP_EXPECTED_BLOCKING_BOARD_FOUR
+BISHOP_EXPECTED_BLOCKING_BOARD_ONE =    0x8040221400142241
+BISHOP_EXPECTED_BLOCKING_BOARD_TWO =    0x0040201400142241
+BISHOP_EXPECTED_BLOCKING_BOARD_THREE =  0x0041221400142000
+BISHOP_EXPECTED_BLOCKING_BOARD_FOUR =   0x0040201400142200
 
 test_cases = [
     pytest.param(
@@ -259,6 +259,34 @@ test_cases = [
         id="Rook blocking table in center square when four lanes blocked"
     ),
 
+    pytest.param(
+        create_bishop_blocking_attack_board,
+        CENTER,
+        BISHOP_ONE_LANE_BLOCKED,
+        BISHOP_EXPECTED_BLOCKING_BOARD_ONE,
+        id="Bishop blocking table in center square when one lane blocked"
+    ),
+    pytest.param(
+        create_bishop_blocking_attack_board,
+        CENTER,
+        BISHOP_TWO_LANES_BLOCKED,
+        BISHOP_EXPECTED_BLOCKING_BOARD_TWO,
+        id="Bishop blocking table in center square when two lanes blocked"
+    ),
+    pytest.param(
+        create_bishop_blocking_attack_board,
+        CENTER,
+        BISHOP_THREE_LANES_BLOCKED,
+        BISHOP_EXPECTED_BLOCKING_BOARD_THREE,
+        id="Bishop blocking table in center square when three lanes blocked"
+    ),
+    pytest.param(
+        create_bishop_blocking_attack_board,
+        CENTER,
+        BISHOP_FOUR_LANES_BLOCKED,
+        BISHOP_EXPECTED_BLOCKING_BOARD_FOUR,
+        id="Bishop blocking table in center square when four lanes blocked"
+    ),
     
 
     

@@ -1,7 +1,7 @@
-from utils import *
-from globals import *
+from src.utils import *
+from src.globals import *
 
-from attack_tables import get_attack_tables
+from src.attack_tables import get_attack_tables
 
 white_pawn_double_mask = 0xFF << 8
 black_pawn_double_mask = 0xFF >> 48

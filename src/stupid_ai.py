@@ -1,10 +1,10 @@
 import random
 import time
-from chess_board import ChessBoard
-from utils import *
-from attack_tables import get_attack_tables
+from src.chess_board import ChessBoard
+from src.utils import *
+from src.attack_tables import get_attack_tables
 
-from precomputation import *
+from src.precomputation import *
 
 
 

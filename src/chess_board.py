@@ -1,6 +1,6 @@
 import random
 import time
-from utils import * 
+from src.utils import * 
 
 
 
@@ -8,7 +8,7 @@ from utils import *
 
 
 
-from situation import Situation, generate_situation, get_moves
+from src.situation import Situation, generate_situation, get_moves
 
 
 

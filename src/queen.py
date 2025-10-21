@@ -1,9 +1,9 @@
-from utils import *
-from globals import *
+from src.utils import *
+from src.globals import *
 
-from attack_tables import get_attack_tables
-import bishop
-import rook
+from src.attack_tables import get_attack_tables
+import src.bishop as bishop
+import src.rook as rook
 
 
 def get_attack_board(location_board, all_pieces):

@@ -329,7 +329,7 @@ def create_bishop_blocking_attack_board(square, block_value):
         northeast -= 1
     southeast = min(space_right, space_down)
     if southeast > 0:
-        northeast -= 1
+        southeast -= 1
     southwest = min(space_down, space_left)
     if southwest > 0:
         southwest -= 1
@@ -344,29 +344,33 @@ def create_bishop_blocking_attack_board(square, block_value):
 
     # scalars for diagonal bit shifts
     # order: northeast, southeast, southwest, northwest
-    diagonal_scalars = [7, -7, -9, 9]
+    diagonal_scalars = [7, -9, -7, 9]
 
     # bit representations of first blocking square of each direction
-    blocking_bits = [block_value & 0b111,
-                    (block_value >> 3) & 0b111,
+    blocking_bits = [
+                    (block_value >> 9) & 0b111,
                     (block_value >> 6) & 0b111,
-                    (block_value >> 9) & 0b111]
+                    (block_value >> 3) & 0b111,
+                    block_value & 0b111
+                    ]
 
     # add diagonals to bitboard
     for direction in range(0,4):
         # if there is no blocking, attack squares are calculated from direction length
         if blocking_bits[direction] == 0:
-            loop_length = diagonal_lengths[direction]
+            loop_length = diagonal_lengths[direction] +1
         else:
             loop_length = blocking_bits[direction]
             
-        for move in range(0, loop_length):
+        for move in range(1, loop_length +1):
             temp_bitboard = 0
             temp_bitboard |= (1 << square)
             if diagonal_scalars[direction] < 0:
                 move_bitboard = (temp_bitboard >> (move * abs(diagonal_scalars[direction]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
             else:
                 move_bitboard = (temp_bitboard << (move * diagonal_scalars[direction])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+            
+            
             bitboard |= move_bitboard
 
     return bitboard
@@ -407,13 +411,13 @@ def precompute_single_white_pawn_attack_table(square):
     plus9_move = (square << 9) & pawn_right_edge_mask & pawn_top_mask
     plus7_move = (square << 7) & pawn_left_edge_mask & pawn_top_mask
 
-    return plus7_move | plus7_move
+    return plus9_move | plus7_move
 
 def precompute_single_black_pawn_attack_table(square):
     minus9_move = (square >> 9) & pawn_left_edge_mask & pawn_bottom_mask
     minus7_move = (square >> 7) & pawn_right_edge_mask & pawn_bottom_mask
 
-    return minus7_move | minus7_move
+    return minus9_move | minus7_move
 
 def precompute_single_white_pawn_move_table(square):
     single_move = pawn_mask & (square <<8)
@@ -427,3 +431,5 @@ def precompute_single_black_pawn_move_table(square):
     double_move = (square & black_pawn_double_mask) >> 16
 
     return single_move | double_move
+
+create_bishop_blocking_attack_board(27, 0b000001010011 )
