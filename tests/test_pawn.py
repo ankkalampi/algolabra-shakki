@@ -240,6 +240,73 @@ WHITE_EXPECTED_MOVEMENT_MOVES = [
     0b001001011001001000,
 ]
 
+WHITE_EXPECTED_CAPTURE_MOVES = [
+    #14->23 001 000
+    0b001110010111001000,
+    #9->18 001 000
+    0b001001010010001000,
+    #27->34 001 000
+    0b011011100010001000,
+
+    #48->57 001 010
+    0b110000111001001010,
+    #48->57 001 011
+    0b110000111001001011,
+    #48->57 001 100
+    0b110000111001001100,
+    #48->57 001 101
+    0b110000111001001101,
+
+    #52->59 001 010
+    0b110100111011001010,
+    #52->59 001 011
+    0b110100111011001011,
+    #52->59 001 100
+    0b110100111011001100,
+    #52->59 001 101
+    0b110100111011001101,
+
+    #52->61 001 010
+    0b110100111101001010,
+    #52->61 001 011
+    0b110100111101001011,
+    #52->61 001 100
+    0b110100111101001100,
+    #52->61 001 101
+    0b110100111101001101
+]
+
+BLACK_EXPECTED_CAPTURE_MOVES = [
+    #54->45 001 000
+    0b110110101101001000,
+    #43->34 001 000
+    0b101011100010001000,
+    #41->34 001 000
+    0b101001100010001000,
+    #34->27 001 000
+    0b100010011011001000
+]
+
+WHITE_EXPECTED_PROMOTION_MOVES = [
+    #48->56 001 010
+    0b110000111000001010,
+    #48->56 001 011
+    0b110000111000001011,
+    #48->56 001 100
+    0b110000111000001100,
+    #48->56 001 101
+    0b110000111000001101
+]
+
+BLACK_EXPECTED_PROMOTION_MOVES = []
+
+WHITE_EXPECTED_ALL_MOVES =  WHITE_EXPECTED_MOVEMENT_MOVES \
+                            + WHITE_EXPECTED_CAPTURE_MOVES \
+                            + WHITE_EXPECTED_PROMOTION_MOVES
+
+BLACK_EXPECTED_ALL_MOVES =  BLACK_EXPECTED_MOVEMENT_MOVES \
+                            + BLACK_EXPECTED_CAPTURE_MOVES \
+                            + BLACK_EXPECTED_PROMOTION_MOVES
 test_cases = [
     pytest.param(
         generate_movement_moves_white,
@@ -255,6 +322,54 @@ test_cases = [
         ALL_PIECES_2,
         BLACK_EXPECTED_MOVEMENT_MOVES,
         id = "Black pawn movement moves"
+    ),
+
+    pytest.param(
+        generate_capture_moves_white,
+        WHITE_PAWNS_2,
+        ALL_PIECES_2,
+        WHITE_EXPECTED_CAPTURE_MOVES,
+        id = "White pawn capture moves"
+    ),
+
+    pytest.param(
+        generate_capture_moves_black,
+        BLACK_PAWNS_2,
+        ALL_PIECES_2,
+        BLACK_EXPECTED_CAPTURE_MOVES,
+        id = "Black pawn capture moves"
+    ),
+
+    pytest.param(
+        generate_promotion_moves_white,
+        WHITE_PAWNS_2,
+        ALL_PIECES_2,
+        WHITE_EXPECTED_PROMOTION_MOVES,
+        id = "White pawn promotion moves"
+    ),
+
+    pytest.param(
+        generate_promotion_moves_black,
+        BLACK_PAWNS_2,
+        ALL_PIECES_2,
+        BLACK_EXPECTED_PROMOTION_MOVES,
+        id = "Black pawn promotion moves"
+    ),
+
+    pytest.param(
+        generate_moves_white,
+        WHITE_PAWNS_2,
+        ALL_PIECES_2,
+        WHITE_EXPECTED_ALL_MOVES,
+        id = "White pawn all moves"
+    ),
+
+    pytest.param(
+        generate_moves_black,
+        BLACK_PAWNS_2,
+        ALL_PIECES_2,
+        BLACK_EXPECTED_ALL_MOVES,
+        id = "Black pawn all moves"
     ),
 ]
 
