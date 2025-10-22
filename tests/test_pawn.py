@@ -1,7 +1,6 @@
 import pytest
 from src.pawn import *
 from src.attack_tables import get_attack_tables
-from tests.test_situation import mock_situation
 from src.pawn import get_double_move_board
 from src.utils import *
 
