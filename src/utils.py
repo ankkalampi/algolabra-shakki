@@ -18,13 +18,19 @@ def bitscan(bitboard):
 # queen:    0b101
 # king:     0b110
 def generate_move(origin_square, destination_square, piece, promotion = 0b000):
+
+    origin_bin = square_index_to_6_bits(origin_square)
+    destination_bin = square_index_to_6_bits(destination_square)
     uci = 0b00000000000000000
-    uci |= (origin_square)
-    uci |= (destination_square << 6)
+    uci |= (origin_bin)
+    uci |= (destination_bin << 6)
     uci |= (piece << 12)
     uci |= (promotion << 15)
 
     return uci
+
+def square_index_to_6_bits(square):
+    return square & 0b111111
 
 # returns uci notation. uci notation is a string of 4 characters, with the exception that 
 # a pawn promotion takes place, adding fifth character to the string. 
@@ -73,13 +79,13 @@ def get_destination_from_move(move):
     return (move >> 6) & 0b111111
 
 def get_origin_from_move(move):
-    return move & 0b111111
+    return (move >> 12) & 0b111111
 
 def get_piece_type_from_move(move):
-    return (move >> 12) & 0b111
+    return (move >> 3) & 0b111
 
 def get_promotion_from_move(move):
-    return (move >> 15) & 0b111
+    return move & 0b111
 
 def get_square_from_string(string):
     file_char = string[0:1]
@@ -129,7 +135,87 @@ def print_bitboard(bitboard):
 
     return bitboard_string
 
+def print_move(move):
+    origin = get_origin_from_move(move)
+    destination = get_destination_from_move(move)
+    piece = get_piece_type_from_move(move)
+    promotion = get_promotion_from_move(move)
 
+    move_string = ""
+
+    move_string += str(origin)
+    move_string += " -> "
+    move_string += str(destination)
+    
+    if piece == 1:
+        move_string += " pawn "
+    elif piece == 2:
+        move_string += " knight "
+    elif piece == 3:
+        move_string += " bishop "
+    elif piece == 4:
+        move_string += " rook "
+    elif piece == 5:
+        move_string += " queen "
+    elif piece == 6:
+        move_string += " king "
+    else:
+        move_string += " ERROR "
+
+    if promotion == 0:
+        move_string += " no promotion "
+    elif promotion == 2:
+        move_string += " promotion: knight "
+    elif promotion == 3:
+        move_string += " promotion: bishop "
+    elif promotion == 4:
+        move_string += " promotion: rook "
+    elif promotion == 5:
+        move_string += " promotion: queen "
+    else:
+        move_string += " ERROR "
+
+    print(move_string)
+
+def print_move_set(moves):
+    for move in moves:
+        print_move(move)
+
+
+
+set1 = [
+    #55->47 001 000
+    0b110111101111001000,
+    #55->39 001 000
+    0b110111100111001000,
+    #54->48 001 000
+    0b110110110000001000,
+    #54->38 001 000
+    0b110110100110001000,
+    #43->35 001 000
+    0b101011100011001000,
+    #34->26 001 000
+    0b100010011010001000,
+    #41->33 001 000
+    0b101001100001001000
+]
+
+set2 = [
+    #23->31 001 000
+    0b010111011111001000,
+    #14->22 001 000
+    0b001110010110001000,
+    #14->30 001 000
+    0b001110011110001000,
+    #13->21 001 000
+    0b001101010101001000,
+    #13->29 001 000
+    0b001101011101001000,
+    #27->35 001 000
+    0b011011100011001000,
+    #9->17 001 000
+    0b001001010001001000
+]
 
 
 

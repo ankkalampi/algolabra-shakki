@@ -97,6 +97,7 @@ def get_capture_board(location_board, all_pieces, is_white):
     capture_board = EMPTY_BOARD
     attack_tables = get_attack_tables()
     
+    
     while(location_board):
         location_square = bitscan(location_board)
         location_board &= location_board -1
@@ -135,29 +136,31 @@ def get_attack_board(location_board, all_pieces, is_white):
 
     return attack_board
 
+def generate_movement_moves_white(location_board, all_pieces):
+    """
+    Generate white pawn non-promotion movement moves in a specific situation
 
+    Args:
+    location_board: bitboard of all white pawns
+    all_pieces: bitboard of all pieces in game situation
 
+    Returns:
+    moves: list of moves in 18bit format
+    """
 
-def generate_moves_white(location_board, all_pieces):
     moves = []
+    location_board_no_promotion = location_board & white_pawn_nonpromotion_mask
+    movement_board = get_single_move_board(location_board, all_pieces, True)
+    movement_board |= get_double_move_board(location_board, all_pieces, True)
     attack_tables = get_attack_tables()
 
-    unmoved_pawns = location_board & WHITE_PAWNS_START
-    moved_pawns = location_board ^ WHITE_PAWNS_START
-
-    location_board_no_promotion = (unmoved_pawns | moved_pawns) & white_pawn_nonpromotion_mask
-    location_board_promotion = (unmoved_pawns | moved_pawns) & white_pawn_promotion_mask
-
-    attack_board = get_attack_board(location_board, all_pieces, True)
-
-    # normal moves
     while(location_board_no_promotion):
         location_square = bitscan(location_board_no_promotion)
         location_board_no_promotion &= location_board_no_promotion -1
 
         
         return_board = EMPTY_BOARD
-        return_board |= (attack_tables.white_pawn_move_tables[location_square] & attack_board)
+        return_board |= (attack_tables.white_pawn_move_tables[location_square] & movement_board)
         
         
         while(return_board):
@@ -166,10 +169,131 @@ def generate_moves_white(location_board, all_pieces):
 
             moves.append(generate_move(location_square, move_square, 0b001, 0b001))
 
-    # promotion moves
+    return moves
+
+def generate_movement_moves_black(location_board, all_pieces):
+    """
+    Generate black pawn non-promotion movement moves in a specific situation
+
+    Args:
+    location_board: bitboard of all black pawns
+    all_pieces: bitboard of all pieces in game situation
+
+    Returns:
+    moves: list of moves in 18bit format
+    """
+
+    moves = []
+    location_board_no_promotion = location_board & black_pawn_nonpromotion_mask
+    movement_board = get_single_move_board(location_board, all_pieces, False)
+    movement_board |= get_double_move_board(location_board, all_pieces, False)
+    attack_tables = get_attack_tables()
+
+    while(location_board_no_promotion):
+        location_square = bitscan(location_board_no_promotion)
+        location_board_no_promotion &= location_board_no_promotion -1
+
+        
+        return_board = EMPTY_BOARD
+        return_board |= (attack_tables.black_pawn_move_tables[location_square] & movement_board)
+        
+        
+        while(return_board):
+            move_square = bitscan(return_board)
+            return_board &= return_board -1
+
+            moves.append(generate_move(location_square, move_square, 0b001, 0b001))
+
+    return moves
+
+def generate_capture_moves_white(location_board, all_pieces):
+    """
+    Generate white pawn capturing moves in a specific situation
+
+    Args:
+    location_board: bitboard of all white pawns
+    all_pieces: bitboard of all pieces in game situation
+
+    Returns:
+    moves: list of moves in 18bit format
+    """
+
+    moves = []
+    
+    attack_board = get_capture_board(location_board, all_pieces, True) & all_pieces
+    attack_tables = get_attack_tables()
+
+    while(attack_board):
+        location_square = bitscan(attack_board)
+        attack_board &= attack_board -1
+
+        
+        return_board = EMPTY_BOARD
+        return_board |= (attack_tables.white_pawn_attack_tables[location_square] & attack_board)
+        
+        
+        while(return_board):
+            move_square = bitscan(return_board)
+            return_board &= return_board -1
+
+            moves.append(generate_move(location_square, move_square, 0b001, 0b001))
+
+    return moves
+
+def generate_capture_moves_black(location_board, all_pieces):
+    """
+    Generate black pawn capturing moves in a specific situation
+
+    Args:
+    location_board: bitboard of all black pawns
+    all_pieces: bitboard of all pieces in game situation
+
+    Returns:
+    moves: list of moves in 18bit format
+    """
+
+    moves = []
+    
+    attack_board = get_capture_board(location_board, all_pieces, False) & all_pieces
+    attack_tables = get_attack_tables()
+
+    while(attack_board):
+        location_square = bitscan(attack_board)
+        attack_board &= attack_board -1
+
+        
+        return_board = EMPTY_BOARD
+        return_board |= (attack_tables.black_pawn_attack_tables[location_square] & attack_board)
+        
+        
+        while(return_board):
+            move_square = bitscan(return_board)
+            return_board &= return_board -1
+
+            moves.append(generate_move(location_square, move_square, 0b001, 0b001))
+
+    return moves
+
+
+def generate_promotion_moves_white(location_board, all_pieces):
+    """
+    Generate white pawn promotion moves in a specific situation
+
+    Args:
+    location_board: bitboard of all white pawns
+    all_pieces: bitboard of all pieces in game situation
+
+    Returns:
+    moves: list of moves in 18bit format
+    """
+    moves = []
+    location_board_promotion = location_board & white_pawn_promotion_mask
+    attack_board = get_attack_board(location_board, all_pieces, True)
+    attack_tables = get_attack_tables()
+
     while(location_board_promotion):
         location_square = bitscan(location_board_promotion)
-        location_board_no_promotion &= location_board_promotion -1
+        location_board_promotion &= location_board_promotion -1
 
         
         return_board = EMPTY_BOARD
@@ -184,62 +308,95 @@ def generate_moves_white(location_board, all_pieces):
             moves.append(generate_move(location_square, move_square, 0b001, 0b011)) # bishop
             moves.append(generate_move(location_square, move_square, 0b001, 0b100)) # rook
             moves.append(generate_move(location_square, move_square, 0b001, 0b101)) # queen
+    return moves
+
+
+def generate_promotion_moves_black(location_board, all_pieces):
+    """
+    Generate black pawn promotion moves in a specific situation
+
+    Args:
+    location_board: bitboard of all black pawns
+    all_pieces: bitboard of all pieces in game situation
+
+    Returns:
+    moves: list of moves in 18bit format
+    """
+    moves = []
+    location_board_promotion = location_board & black_pawn_promotion_mask
+    attack_board = get_attack_board(location_board, all_pieces, False)
+    attack_tables = get_attack_tables()
+
+    while(location_board_promotion):
+        location_square = bitscan(location_board_promotion)
+        location_board_promotion &= location_board_promotion -1
+
+        
+        return_board = EMPTY_BOARD
+        return_board |= (attack_tables.black_pawn_move_tables[location_square] & attack_board)
+        
+        
+        while(return_board):
+            move_square = bitscan(return_board)
+            return_board &= return_board -1
+
+            moves.append(generate_move(location_square, move_square, 0b001, 0b010)) # knight
+            moves.append(generate_move(location_square, move_square, 0b001, 0b011)) # bishop
+            moves.append(generate_move(location_square, move_square, 0b001, 0b100)) # rook
+            moves.append(generate_move(location_square, move_square, 0b001, 0b101)) # queen
+    return moves
+
+
+def generate_moves_white(location_board, all_pieces):
+    """
+    Generate all white pawn moves in a specific situation
+
+    Args:
+    location_board: bitboard of all white pawns
+    all_pieces: bitboard of all pieces in game situation
+
+    Returns:
+    moves: list of moves in 18bit format
+    """
+    moves = []
+    moves.extend(generate_movement_moves_white(location_board, all_pieces))
+    moves.extend(generate_capture_moves_white(location_board, all_pieces))
+    moves.extend(generate_promotion_moves_white(location_board, all_pieces))
 
     return moves
 
 
 def generate_moves_black(location_board, all_pieces):
+    """
+    Generate all black pawn moves in a specific situation
+
+    Args:
+    location_board: bitboard of all white pawns
+    all_pieces: bitboard of all pieces in game situation
+
+    Returns:
+    moves: list of moves in 18bit format
+    """
     moves = []
-    attack_tables = get_attack_tables()
-
-    unmoved_pawns = location_board & BLACK_PAWNS_START
-    moved_pawns = location_board ^ BLACK_PAWNS_START
-    
-    location_board_no_promotion = (unmoved_pawns | moved_pawns) & black_pawn_nonpromotion_mask
-    location_board_promotion = (unmoved_pawns | moved_pawns) & black_pawn_promotion_mask
-
-    attack_board = get_attack_board(location_board, all_pieces, False)
-
-    # normal moves
-    while(location_board_no_promotion):
-        location_square = bitscan(location_board_no_promotion)
-        location_board_no_promotion &= location_board_no_promotion -1
-
-        
-        return_board = EMPTY_BOARD
-        return_board |= (attack_tables.black_pawn_move_tables[location_square] & attack_board)
-        
-        
-        while(return_board):
-            move_square = bitscan(return_board)
-            return_board &= return_board -1
-
-            moves.append(generate_move(location_square, move_square, 0b001, 0b001))
-
-    # promotion moves
-    while(location_board_promotion):
-        location_square = bitscan(location_board_promotion)
-        location_board_no_promotion &= location_board_promotion -1
-
-        
-        return_board = EMPTY_BOARD
-        return_board |= (attack_tables.black_pawn_move_tables[location_square] & attack_board)
-        
-        
-        while(return_board):
-            move_square = bitscan(return_board)
-            return_board &= return_board -1
-
-            moves.append(generate_move(location_square, move_square, 0b001, 0b010)) # knight
-            moves.append(generate_move(location_square, move_square, 0b001, 0b011)) # bishop
-            moves.append(generate_move(location_square, move_square, 0b001, 0b100)) # rook
-            moves.append(generate_move(location_square, move_square, 0b001, 0b101)) # queen
-
+    moves.extend(generate_movement_moves_black(location_board, all_pieces))
+    moves.extend(generate_capture_moves_black(location_board, all_pieces))
+    moves.extend(generate_promotion_moves_black(location_board, all_pieces))
     return moves
 
  
 
 def get_moves(location_board, all_pieces, is_white):
+    """
+    Returns all pawn moves of a specific color in a specific situation
+
+    Args:
+    location_board: bitboard of all white pawns
+    all_pieces: bitboard of all pieces in game situation
+    is_white: True if white
+
+    Returns:
+    moves: list of moves in 18bit format
+    """
     moves = []
 
     if is_white:
