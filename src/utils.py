@@ -108,4 +108,28 @@ def get_square_from_string(string):
 
     return (rank * 8) + file
 
+def print_bitboard(bitboard):
+    indices = set()
+    
+    while(bitboard):
+        index = bitscan(bitboard)
+        bitboard &= bitboard -1
+        indices.add(index)
+    
+    bitboard_string = ""
+
+    for index in range(63,-1,-1):
+        if (index % 8) == 7 and index != 63:
+            bitboard_string += "\n"
+
+        if index in indices:
+            bitboard_string += "1 "
+        else:
+            bitboard_string += "0 "
+
+    return bitboard_string
+
+
+
+
 

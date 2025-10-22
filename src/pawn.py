@@ -15,8 +15,20 @@ black_pawn_promotion_mask = white_pawn_double_mask
 
 
 def get_double_move_board(location_board, all_pieces, is_white):
+    """
+    Compute and return an attack board (bitboard)
+    for all single color pawn double moves
+
+    Args:
+    location_board: bitboard of all pawns of one color
+    all_pieces: bitboard of all pieces in game situation
+    is_white: True if it's white's turn
+
+    Returns:
+    bitboard: 64-bit bitboard representation of all single color double pawn moves
+    """
     attack_board = EMPTY_BOARD
-    unblocked_pawns = EMPTY_BOARD
+    
     
     if is_white:
         unmoved_pawns = location_board & WHITE_PAWNS_START
@@ -26,59 +38,100 @@ def get_double_move_board(location_board, all_pieces, is_white):
         
 
     if is_white:
-        unblocked_pawns |= (unmoved_pawns << 8) & ((all_pieces ^ 0xFFFFFFFFFFFFFFFF) & white_pawn_double_mask)
-        attack_board |= unblocked_pawns << 16
+        single_move_blocked_bits = ((unmoved_pawns << 8) & -all_pieces) >> 8
+        double_move_blocked_bits = ((unmoved_pawns << 16) & -all_pieces) >> 16
+
+        attack_board |= (single_move_blocked_bits & double_move_blocked_bits) << 16
+        
     else:
-        unblocked_pawns |= (unmoved_pawns >> 8) & ((all_pieces ^ 0xFFFFFFFFFFFFFFFF) & black_pawn_double_mask)
-        attack_board |= unblocked_pawns >> 16
+        single_move_blocked_bits = ((unmoved_pawns >> 8) & -all_pieces) << 8
+        double_move_blocked_bits = ((unmoved_pawns >> 16) & -all_pieces) << 16
+
+        attack_board |= (single_move_blocked_bits & double_move_blocked_bits) >> 16
+        
 
     return attack_board
 
 def get_single_move_board(location_board, all_pieces, is_white):
+    """
+    Compute and return an attack board (bitboard)
+    for all single color pawn single moves
+
+    Args:
+    location_board: bitboard of all pawns of one color
+    all_pieces: bitboard of all pieces in game situation
+    is_white: True if it's white's turn
+
+    Returns:
+    bitboard: 64-bit bitboard representation of all single color single pawn moves
+    """
     attack_board = EMPTY_BOARD
+    unblocked_pawns = EMPTY_BOARD
     
     if is_white:
-        unmoved_pawns = location_board & WHITE_PAWNS_START
-        moved_pawns = location_board ^ WHITE_PAWNS_START
+        unblocked_pawns |= ((location_board  << 8) & -all_pieces) >> 8
     else:
-        unmoved_pawns = location_board & BLACK_PAWNS_START
-        moved_pawns = location_board ^ BLACK_PAWNS_START
+        unblocked_pawns |= ((location_board >> 8) & -all_pieces) << 8
 
     if is_white:
-        attack_board |= ((moved_pawns | unmoved_pawns) & white_pawn_single_mask) << 8
+        attack_board |= unblocked_pawns << 8
     else:
-        attack_board |= ((moved_pawns | unmoved_pawns) & black_pawn_single_mask) >> 8
-
+        attack_board |= unblocked_pawns >> 8
     return attack_board
 
-    
-# NOTE: this is called attack board for consistency, but it does inlude move-only moves
-def get_attack_board(location_board, all_pieces, is_white):
 
-    attack_board = EMPTY_BOARD
+def get_capture_board(location_board, all_pieces, is_white):
+    """
+    Compute and return a capture board (bitboard)
+    for all single color pawn capturing moves
+
+    Args:
+    location_board: bitboard of all pawns of one color
+    all_pieces: bitboard of all pieces in game situation
+    is_white: True if it's white's turn
+
+    Returns:
+    bitboard: 64-bit bitboard representation of all single color pawn capture moves
+    """
+
+    capture_board = EMPTY_BOARD
     attack_tables = get_attack_tables()
-    if is_white:
-        unmoved_pawns = location_board & WHITE_PAWNS_START
-    else:
-        moved_pawns = location_board ^ WHITE_PAWNS_START
-
     
-
     while(location_board):
         location_square = bitscan(location_board)
         location_board &= location_board -1
 
         if is_white:
-            attack_board |= attack_tables.white_pawn_attack_tables[location_square]
+            capture_board |= attack_tables.white_pawn_attack_tables[location_square]
         else:
-            attack_board |= attack_tables.black_pawn_attack_tables[location_square]
+            capture_board |= attack_tables.black_pawn_attack_tables[location_square]
 
-    if is_white:
-        attack_board |= get_single_move_board(location_board, all_pieces, True)
-        attack_board |= get_double_move_board(location_board, all_pieces, True)
-    else:
-        attack_board |= get_single_move_board(location_board, all_pieces, False)
-        attack_board |= get_double_move_board(location_board, all_pieces, False)
+    
+    return capture_board
+
+    
+# NOTE: this is called attack board for consistency, but it does inlude move-only moves
+def get_attack_board(location_board, all_pieces, is_white):
+    """
+    Compute and return a bitboard
+    combining all single, double and capture moves for
+    pawns of a sigle color. Named attack board for consistency
+
+    Args:
+    location_board: bitboard of all pawns of one color
+    all_pieces: bitboard of all pieces in game situation
+    is_white: True if it's white's turn
+
+    Returns:
+    bitboard: 64-bit bitboard representation of all single color pawn moves
+    """
+
+    attack_board = EMPTY_BOARD
+
+    attack_board |= get_single_move_board(location_board, all_pieces, is_white)
+    attack_board |= get_double_move_board(location_board, all_pieces, is_white)
+    attack_board |= get_capture_board(location_board, all_pieces, is_white)
+
 
     return attack_board
 
