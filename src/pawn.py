@@ -7,8 +7,8 @@ white_pawn_double_mask = 0xFF << 8
 black_pawn_double_mask = 0xFF >> 48
 white_pawn_single_mask = 0xFF ^ 0xFFFFFFFFFFFFFFFF
 black_pawn_single_mask = (0xFF >> 56) ^ 0xFFFFFFFFFFFFFFFF
-white_pawn_nonpromotion_mask    = (0xFF >> 48) ^ 0xFFFFFFFFFFFFFFFF
-black_pawn_nonpromotion_mask   = (0xFF << 8) ^ 0xFFFFFFFFFFFFFFFF
+white_pawn_nonpromotion_mask    = 0x0000FFFFFFFFFFFF
+black_pawn_nonpromotion_mask   = 0xFFFFFFFFFFFF0000
 white_pawn_promotion_mask = black_pawn_double_mask
 black_pawn_promotion_mask = white_pawn_double_mask
 
@@ -150,8 +150,8 @@ def generate_movement_moves_white(location_board, all_pieces):
 
     moves = []
     location_board_no_promotion = location_board & white_pawn_nonpromotion_mask
-    movement_board = get_single_move_board(location_board, all_pieces, True)
-    movement_board |= get_double_move_board(location_board, all_pieces, True)
+    movement_board = get_single_move_board(location_board_no_promotion, all_pieces, True)
+    movement_board |= get_double_move_board(location_board_no_promotion, all_pieces, True)
     attack_tables = get_attack_tables()
 
     while(location_board_no_promotion):
@@ -167,7 +167,7 @@ def generate_movement_moves_white(location_board, all_pieces):
             move_square = bitscan(return_board)
             return_board &= return_board -1
 
-            moves.append(generate_move(location_square, move_square, 0b001, 0b001))
+            moves.append(generate_move(location_square, move_square, 0b001, 0b000))
 
     return moves
 
@@ -202,7 +202,7 @@ def generate_movement_moves_black(location_board, all_pieces):
             move_square = bitscan(return_board)
             return_board &= return_board -1
 
-            moves.append(generate_move(location_square, move_square, 0b001, 0b001))
+            moves.append(generate_move(location_square, move_square, 0b001, 0b000))
 
     return moves
 

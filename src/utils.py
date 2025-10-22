@@ -22,10 +22,11 @@ def generate_move(origin_square, destination_square, piece, promotion = 0b000):
     origin_bin = square_index_to_6_bits(origin_square)
     destination_bin = square_index_to_6_bits(destination_square)
     uci = 0b00000000000000000
-    uci |= (origin_bin)
+    uci |= (promotion)
+    uci |= (piece << 3)
     uci |= (destination_bin << 6)
-    uci |= (piece << 12)
-    uci |= (promotion << 15)
+    uci |= (origin_bin << 12)
+    
 
     return uci
 
@@ -178,44 +179,15 @@ def print_move(move):
     print(move_string)
 
 def print_move_set(moves):
+    print("MOVESET:")
     for move in moves:
         print_move(move)
 
 
 
-set1 = [
-    #55->47 001 000
-    0b110111101111001000,
-    #55->39 001 000
-    0b110111100111001000,
-    #54->48 001 000
-    0b110110110000001000,
-    #54->38 001 000
-    0b110110100110001000,
-    #43->35 001 000
-    0b101011100011001000,
-    #34->26 001 000
-    0b100010011010001000,
-    #41->33 001 000
-    0b101001100001001000
-]
-
-set2 = [
-    #23->31 001 000
-    0b010111011111001000,
-    #14->22 001 000
-    0b001110010110001000,
-    #14->30 001 000
-    0b001110011110001000,
-    #13->21 001 000
-    0b001101010101001000,
-    #13->29 001 000
-    0b001101011101001000,
-    #27->35 001 000
-    0b011011100011001000,
-    #9->17 001 000
-    0b001001010001001000
-]
-
+move = generate_move(23, 31, 0b001, 0b000)
+print("move: ")
+print(print_move(move))
+print(bin(move))
 
 

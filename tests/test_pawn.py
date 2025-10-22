@@ -209,8 +209,8 @@ BLACK_EXPECTED_MOVEMENT_MOVES = [
     0b110111101111001000,
     #55->39 001 000
     0b110111100111001000,
-    #54->48 001 000
-    0b110110110000001000,
+    #54->46 001 000
+    0b110110101110001000,
     #54->38 001 000
     0b110110100110001000,
     #43->35 001 000
@@ -235,7 +235,9 @@ WHITE_EXPECTED_MOVEMENT_MOVES = [
     #27->35 001 000
     0b011011100011001000,
     #9->17 001 000
-    0b001001010001001000
+    0b001001010001001000,
+    #9->25 001 000
+    0b001001011001001000,
 ]
 
 test_cases = [
@@ -263,10 +265,10 @@ test_cases = [
 def test_move_generation(function, location_board, all_pieces, expected):
     result = function(location_board, all_pieces)
 
-    print_move_set(expected)
 
 
-    assert set(result) == set(expected), (
+
+    assert sorted(result) == sorted(expected), (
         f"Failed test\n"
         f"  Expected:   \n{print_move_set(expected)}\n"
         f"  Got:        \n{print_move_set(result)}"
