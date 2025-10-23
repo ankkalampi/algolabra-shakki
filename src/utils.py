@@ -217,7 +217,37 @@ def get_move_bits(origin, destination, piece, promotion =0b000):
     return bits & 0b111111111111111111
 
 
+def get_move_from_uci(uci, situation):
 
+    origin_string = uci[:2]
+    destination_string = uci[2:4]
+
+    origin_square = get_square_from_string(origin_string)
+    destination_square = get_square_from_string(destination_string)
+
+    if len(uci) == 5:
+        promotion_string = uci[4:5]
+        return generate_move(origin_square, destination_square, 0b001, promotion_string)
+
+    piece = 0
+    
+    if situation.white_turn:
+        if (situation.white_pawns & origin_square != 0) | (situation.black_pawns & origin_square != 0):
+            piece = 0b001
+        elif (situation.white_knights & origin_square != 0) | (situation.black_knights & origin_square != 0):
+            piece = 0b010
+        elif (situation.white_bishops & origin_square != 0) | (situation.black_bishops & origin_square != 0):
+            piece = 0b011
+        elif (situation.white_rooks & origin_square != 0) | (situation.black_rooks & origin_square != 0):
+            piece = 0b100
+        elif (situation.white_queens & origin_square != 0) | (situation.black_queens & origin_square != 0):
+            piece = 0b101
+        elif (situation.white_knights & origin_square != 0) | (situation.black_knights & origin_square != 0):
+            piece = 0b110
+        else:
+            piece = 0b000
+
+    return generate_move(origin_square, destination_square, piece)
 
 
 

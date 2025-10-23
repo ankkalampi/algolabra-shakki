@@ -7,6 +7,16 @@ import src.rook as rook
 
 
 def get_attack_board(location_board, all_pieces):
+    """
+    Get bitboard for all queen attacks for a specific color
+
+    Args:
+    location_board: bitboard of all queens of a specific color
+    all_pieces: bitboard of all pieces in game situation
+
+    Returns:
+    bitboard: 64-bit bitboard 
+    """
     
     attack_board = EMPTY_BOARD
 
@@ -25,6 +35,16 @@ def get_attack_board(location_board, all_pieces):
     return attack_board
 
 def get_moves(location_board, all_pieces):
+    """
+    Get all moves for queens for a specific color
+
+    Args:
+    location_board: bitboard of all queens of a specific color
+    all_pieces: bitboard of all pieces in game situation
+
+    Returns:
+    moves: a list of moves in 18-bit format
+    """
     moves = []
 
 
@@ -33,14 +53,17 @@ def get_moves(location_board, all_pieces):
         location_board &= location_board -1
 
         
+        location_square_bitboard = get_bitboard_of_square(location_square)
+        
+        
         return_board = EMPTY_BOARD
-        return_board |= (get_attack_board(location_board, all_pieces))
+        return_board |= get_attack_board(location_square_bitboard, all_pieces)
         
         
         while(return_board):
             move_square = bitscan(return_board)
             return_board &= return_board -1
 
-            moves.append(generate_move(location_square, move_square, 0b011))
+            moves.append(generate_move(location_square, move_square, 0b101))
 
     return moves
