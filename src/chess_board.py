@@ -27,11 +27,6 @@ class ChessBoard:
         return get_moves(self.situation)
 
     def execute_uci(self, uci):
-
-
-
-
-
         self.situation = generate_situation(get_move_from_uci(uci, self.situation), self.situation)
         self.legal_moves = get_moves(self.situation)
 
