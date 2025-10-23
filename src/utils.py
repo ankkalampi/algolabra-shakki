@@ -201,6 +201,22 @@ def show_block_value(block_value):
 
     return block_string
 
+def get_move_bits(origin, destination, piece, promotion =0b000):
+    origin = origin & 0b111111
+    destination = destination & 0b111111
+    piece = piece & 0b111
+    promotion = promotion & 0b111
+
+    bits = 0b000000000000000000
+
+    bits  |= (origin << 12)
+    bits  |= (destination << 6)
+    bits  |= (piece << 3)
+    bits  |= (promotion)
+
+    return bits & 0b111111111111111111
+
+
 
 
 

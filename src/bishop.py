@@ -67,7 +67,7 @@ def get_block_value(square, all_pieces):
             
             if move_bitboard & block_board != 0:
                 
-                print(print_bitboard(move_bitboard))
+                
                 block_value_components[diagonal] |= sq & 0b111
                 break
 
