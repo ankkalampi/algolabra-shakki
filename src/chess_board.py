@@ -23,6 +23,9 @@ class ChessBoard:
         
         self.legal_moves = []
 
+    def get_legal_moves(self):
+        return get_moves(self.situation)
+
     def execute_uci(self, uci):
 
 

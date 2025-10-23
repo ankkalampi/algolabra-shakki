@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-# Lisää projektin juuri Pythonin polulle
 project_root = str(Path(__file__).resolve().parents[1])
 if project_root not in sys.path:
     sys.path.append(project_root)
@@ -29,7 +28,7 @@ def set_board(board: ChessBoard, board_position:str):
     board.set_fen(board_position)
 
 def make_move(board: ChessBoard):
-    legal_moves = [get_uci(move) for move in list(board.legal_moves)]
+    legal_moves = [get_uci(move) for move in list(board.get_legal_moves())]
     print(f"I found {len(legal_moves)} legal moves: {', '.join(legal_moves)}")
     
     choice = random.choice(legal_moves)
