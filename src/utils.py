@@ -183,6 +183,25 @@ def print_move_set(moves):
     for move in moves:
         print_move(move)
 
+def show_block_value(block_value):
+    block_string = ""
+    first = (block_value >> 9) & 0b111
+    second = (block_value >> 6) & 0b111
+    third = (block_value >> 3) & 0b111
+    fourth = (block_value) & 0b111
+
+    block_string += str(first)
+    block_string += " "
+    block_string += str(second)
+    block_string += " "
+    block_string += str(third)
+    block_string += " "
+    block_string += str(fourth)
+    block_string += " "
+
+    return block_string
+
+
 
 
 

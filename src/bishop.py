@@ -1,6 +1,7 @@
 from src.utils import *
 from src.globals import *
 from src.attack_tables import get_attack_tables
+from src.precomputation import *
 
 
 
@@ -74,10 +75,10 @@ def get_block_value(square, all_pieces):
 
     # construct block value from block values that correspond to individual diagonals
     block_value = 0b000000000000
-    block_value |= block_value_components[0]
-    block_value |= (block_value_components[1] << 3)
-    block_value |= (block_value_components[2] << 6)
-    block_value |= (block_value_components[3] << 9)
+    block_value |= block_value_components[3]
+    block_value |= (block_value_components[2] << 3)
+    block_value |= (block_value_components[1] << 6)
+    block_value |= (block_value_components[0] << 9)
 
 
     return block_value
@@ -100,6 +101,8 @@ def get_attack_board(location_board, all_pieces):
     while(location_board):
         location_square = bitscan(location_board)
         location_board &= location_board -1
+
+        
 
         block_value = get_block_value(location_square, all_pieces)
         attack_board |= attack_tables.bishop_blocking_attack_tables[location_square][block_value]
@@ -125,8 +128,11 @@ def get_moves(location_board, all_pieces):
         location_board &= location_board -1
 
         
+        location_square_bitboard = get_bitboard_of_square(location_square)
+        
+        
         return_board = EMPTY_BOARD
-        return_board |= (get_attack_board(location_board, all_pieces))
+        return_board |= get_attack_board(location_square_bitboard, all_pieces)
         
         
         while(return_board):
