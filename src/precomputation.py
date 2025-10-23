@@ -2,6 +2,7 @@
 from src.globals import EMPTY_BOARD
 from src.utils import *
 
+
 # bitmasks for checking that pieces won't move outside the board
 # for pawns the masks check if opening double move is available
 white_pawn_double_mask = 0xFF << 8
@@ -143,11 +144,24 @@ def precompute_single_bishop_attack_table(square):
     # generate all tables for a piece type using precompute function of that piece
 # param func: piece specific precomputation function
 def precompute_attack_tables(func):
+    """
+    Compute attack tables for all squares based on a given
+    precomputation function
+
+    Args:
+    func: precomputation function used
+
+    Returns:
+    list: list of precomputated attack bitboards
+    """
     bitboards = []
 
     for x in range(0, 64):
         
+        
         bitboard = func(x)
+        
+        
         bitboards.append(bitboard)
     
     return bitboards
@@ -457,4 +471,14 @@ def precompute_single_black_pawn_move_table(square):
 
     return single_move | double_move
 
-create_bishop_blocking_attack_board(27, 0b000001010011 )
+
+
+
+
+
+
+
+
+
+
+

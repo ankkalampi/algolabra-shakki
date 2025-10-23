@@ -34,7 +34,7 @@ def get_attack_board(location_board, all_pieces):
 
 def get_moves(location_board, all_pieces):
     """
-    Get all moves for knight for a specific color
+    Get all moves for knights for a specific color
 
     Args:
     location_board: bitboard of all knights of a specific color

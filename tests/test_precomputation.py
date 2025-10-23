@@ -512,3 +512,5 @@ def test_blocking_attack_bitboard_precomputations(function, square_value, block_
     )
 
 
+
+

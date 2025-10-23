@@ -185,9 +185,6 @@ def print_move_set(moves):
 
 
 
-move = generate_move(23, 31, 0b001, 0b000)
-print("move: ")
-print(print_move(move))
-print(bin(move))
+
 
 
