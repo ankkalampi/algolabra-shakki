@@ -1,3 +1,14 @@
+import sys
+from pathlib import Path
+
+# Lisää projektin juuri Pythonin polulle
+project_root = str(Path(__file__).resolve().parents[1])
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+
+
+
 import random
 import time
 from src.chess_board import ChessBoard

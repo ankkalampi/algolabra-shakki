@@ -12,6 +12,8 @@ ENEMY_TERRITORY_BONUS = 3
 CENTER_BONUS = 1
 CHECK_BONUS = 5
 
+ENDGAME_PIECE_AMOUNT = 14
+
 
 def evaluate_situation(situation):
     """
