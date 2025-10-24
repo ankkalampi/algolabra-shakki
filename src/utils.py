@@ -1,5 +1,10 @@
 
 from src.globals import *
+
+
+
+
+
 # finds the index of the least significant bit in a bitboard
     # used for getting indices of piece locations
 def bitscan(bitboard):
@@ -38,8 +43,8 @@ def square_index_to_6_bits(square):
 # promotion character is empty on default
 def get_uci(move):
 
-    origin_bitboard = get_origin_from_move(move)
-    destination_bitboard = get_destination_from_move(move)
+    origin_bitboard = get_bitboard_of_square(get_origin_from_move(move))
+    destination_bitboard = get_bitboard_of_square(get_destination_from_move(move))
 
     promotion_bits = get_promotion_from_move(move)
 
@@ -111,7 +116,7 @@ def get_square_from_string(string):
     else:
         file = None
 
-    rank = int(rank_char)
+    rank = int(rank_char)-1
 
     return (rank * 8) + file
 
@@ -178,6 +183,48 @@ def print_move(move):
 
     print(move_string)
 
+def show_move(move):
+    origin = get_origin_from_move(move)
+    destination = get_destination_from_move(move)
+    piece = get_piece_type_from_move(move)
+    promotion = get_promotion_from_move(move)
+
+    move_string = ""
+
+    move_string += str(origin)
+    move_string += " -> "
+    move_string += str(destination)
+    
+    if piece == 1:
+        move_string += " pawn "
+    elif piece == 2:
+        move_string += " knight "
+    elif piece == 3:
+        move_string += " bishop "
+    elif piece == 4:
+        move_string += " rook "
+    elif piece == 5:
+        move_string += " queen "
+    elif piece == 6:
+        move_string += " king "
+    else:
+        move_string += " ERROR "
+
+    if promotion == 0:
+        move_string += " no promotion "
+    elif promotion == 2:
+        move_string += " promotion: knight "
+    elif promotion == 3:
+        move_string += " promotion: bishop "
+    elif promotion == 4:
+        move_string += " promotion: rook "
+    elif promotion == 5:
+        move_string += " promotion: queen "
+    else:
+        move_string += " ERROR "
+
+    return move_string
+
 def print_move_set(moves):
     print("MOVESET:")
     for move in moves:
@@ -222,34 +269,53 @@ def get_move_from_uci(uci, situation):
     origin_string = uci[:2]
     destination_string = uci[2:4]
 
+   
+
     origin_square = get_square_from_string(origin_string)
     destination_square = get_square_from_string(destination_string)
 
+    
+
     if len(uci) == 5:
         promotion_string = uci[4:5]
-        return generate_move(origin_square, destination_square, 0b001, promotion_string)
+        return generate_move(square_index_to_6_bits(origin_square), square_index_to_6_bits(destination_square), 0b001, promotion_string)
 
     piece = 0
     
-    if situation.white_turn:
-        if (situation.white_pawns & origin_square != 0) | (situation.black_pawns & origin_square != 0):
-            piece = 0b001
-        elif (situation.white_knights & origin_square != 0) | (situation.black_knights & origin_square != 0):
-            piece = 0b010
-        elif (situation.white_bishops & origin_square != 0) | (situation.black_bishops & origin_square != 0):
-            piece = 0b011
-        elif (situation.white_rooks & origin_square != 0) | (situation.black_rooks & origin_square != 0):
-            piece = 0b100
-        elif (situation.white_queens & origin_square != 0) | (situation.black_queens & origin_square != 0):
-            piece = 0b101
-        elif (situation.white_knights & origin_square != 0) | (situation.black_knights & origin_square != 0):
-            piece = 0b110
-        else:
-            piece = 0b000
+    
+    if (situation.white_pawns & get_bitboard_of_square(origin_square) != 0) \
+     | (situation.black_pawns & get_bitboard_of_square(origin_square) != 0):
+        
+        piece = 0b001
+    elif (situation.white_knights & get_bitboard_of_square(origin_square) != 0) \
+        | (situation.black_knights & get_bitboard_of_square(origin_square) != 0):
+        
+        piece = 0b010
+    elif (situation.white_bishops & get_bitboard_of_square(origin_square) != 0) \
+        | (situation.black_bishops & get_bitboard_of_square(origin_square) != 0):
+        
+        piece = 0b011
+    elif (situation.white_rooks & get_bitboard_of_square(origin_square) != 0) \
+        | (situation.black_rooks & get_bitboard_of_square(origin_square) != 0):
+        
+        piece = 0b100
+    elif (situation.white_queens & get_bitboard_of_square(origin_square) != 0) \
+        | (situation.black_queens & get_bitboard_of_square(origin_square) != 0):
+        
+        piece = 0b101
+    elif (situation.white_king & get_bitboard_of_square(origin_square) != 0) \
+        | (situation.black_king & get_bitboard_of_square(origin_square) != 0):
+        
+        piece = 0b110
+    else:
+        piece = 0b000
 
-    return generate_move(origin_square, destination_square, piece)
+    return generate_move(square_index_to_6_bits(origin_square), square_index_to_6_bits(destination_square), piece)
 
 
 
 
+move = 0b100011010010010000
+
+print(get_uci(move))
 

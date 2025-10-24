@@ -1,6 +1,6 @@
 import pytest
-from src.situation import Situation, is_attempting_to_capture_friendly_piece
-
+from src.situation import Situation, is_attempting_to_capture_friendly_piece, is_friendly_king_in_check, generate_situation
+from src.utils import print_bitboard, print_move
 @pytest.fixture
 def mock_situation():
     sit = Situation()
@@ -166,7 +166,7 @@ test_cases = [
     pytest.param(
         mock_situation_not_in_white_check,
         WHITE_MOVE_WITHOUT_CHECK,
-        True,
+        False,
         id="White wasn't in check, and still isn't"
         ),
 
@@ -192,7 +192,7 @@ test_cases = [
     pytest.param(
         mock_situation_not_in_black_check,
         BLACK_MOVE_WITHOUT_CHECK,
-        True,
+        False,
         id="Black wasn't in check, and still isn't"
         ),
     ]
@@ -200,10 +200,57 @@ test_cases = [
 @pytest.mark.parametrize("function, move, expected", test_cases)
 def test_is_friendly_king_in_check(function, move, expected, mock_situation):
     situation = function(mock_situation)
-    result = is_attempting_to_capture_friendly_piece(move, situation)
+    situation = generate_situation(move, situation)
+    result = is_friendly_king_in_check(situation)
 
     assert result == expected, (
         f"Failed test\n"
-        f"  Expected:   {expected}\n"
-        f"  Got:        {result}"
+        f"  Expected:\n"
+        f"{expected}\n"
+        f"  Got:\n"
+        f"{result}"
+    )
+
+#   0 0 0 0 0 0 0 0     00     
+#   0 0 0 0 1 0 0 0     08
+#   0 0 0 0 0 0 0 0     00
+#   0 0 0 0 0 0 0 0     00
+#   0 0 0 0 0 0 0 0     00
+#   0 0 0 0 0 0 0 0     00
+#   0 0 0 0 0 0 0 0     00
+#   0 0 0 0 0 0 0 0     00
+BLACK_KING_NEW_POSITION = 0x0008000000000000
+
+
+
+
+
+
+test_cases = [
+    pytest.param(
+        mock_situation_not_in_black_check,
+        BLACK_MOVE_INTO_CHECK,
+        BLACK_KING_NEW_POSITION,
+        id="Moving black king"
+        )
+    ]
+
+
+
+@pytest.mark.parametrize("function, move, expected", test_cases)
+def test_generate_situation(function, move, expected, mock_situation):
+    situation = function(mock_situation)
+    
+    situation = generate_situation(move, situation)
+    print_move(move)
+    print(print_bitboard(situation.black_king))
+    result = situation.black_king
+    
+
+    assert result == expected, (
+        f"Failed test\n"
+        f"  Expected:\n"
+        f"{print_bitboard(expected)}\n"
+        f"  Got:\n"
+        f"{print_bitboard(result)}"
     )

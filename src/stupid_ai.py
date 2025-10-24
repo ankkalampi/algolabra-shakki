@@ -25,17 +25,20 @@ from src.precomputation import *
 
 def set_board(board: ChessBoard, board_position:str):
     print(f"Set board to {board_position}!")
-    board.set_fen(board_position)
+    #board.set_fen(board_position)
 
 def make_move(board: ChessBoard):
+    print(f"NUMBER OF LEGAL MOVES: {len(board.get_legal_moves())}")
     legal_moves = [get_uci(move) for move in list(board.get_legal_moves())]
     print(f"I found {len(legal_moves)} legal moves: {', '.join(legal_moves)}")
     
-    choice = random.choice(legal_moves)
-    board.execute_uci(choice)
+    if len(legal_moves) != 0:
+        choice = random.choice(legal_moves)
+        board.execute_uci(choice)
+        return choice
     
 
-    return choice
+    return None
 
 
     
