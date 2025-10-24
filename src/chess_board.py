@@ -34,10 +34,8 @@ class ChessBoard:
             print("MOVE NOT LEGAL   ")
 
         
-        print("black_pawns: ")
-        print(print_bitboard(self.situation.black_pawns))
-        print("white_pawns: ")
-        print(print_bitboard(self.situation.white_pawns))
+        
+
 
     def reset(self):
         self.situation = Situation()

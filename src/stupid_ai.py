@@ -75,6 +75,8 @@ def main():
             # example about logs
             print(f"I chose {choice}!")
             # example about posting a move
+            if not choice:
+                print("RESET:")
             print(f"MOVE:{choice}")
             
         elif opponent_move.startswith("MOVE:"):

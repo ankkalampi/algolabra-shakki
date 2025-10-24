@@ -90,35 +90,32 @@ def get_moves(situation):
 
     legal_moves = []
 
-    print(f"number of pseudolegal moves: {len(moves)}")
+    #print(f"number of pseudolegal moves: {len(moves)}")
 
     for move in moves:
-        print(f"TESTING MOVE: {show_move(move)}")
+        #print(f"TESTING MOVE: {show_move(move)}")
         if try_move(move, situation):
-            print(f"LEGAL MOVE, uci: {get_uci(move)}")
+            #print(f"LEGAL MOVE, uci: {get_uci(move)}")
             legal_moves.append(move)
-        else:
-            print("ILLEGAL MOVE")
+        
 
 
     return legal_moves
 
 def try_move(move, situation):
-    if situation.white_turn:
-        print("TESTING MOVE white turn")
-    else:
-        print("TESTING MOVE black turn")
+    
     if is_attempting_to_capture_friendly_piece(move, situation):
-        print("attempting to capture friendly piece")
+        #print("attempting to capture friendly piece")
         return False
     new_situation = generate_situation(move, situation)
-    #if is_friendly_king_in_check(new_situation):
+    new_situation.white_turn = situation.white_turn
+    if is_friendly_king_in_check(new_situation):
         #print("friendly king in check")
-        #return False
-    #else:
+        return False
+    else:
 
 
-    return True
+        return True
 
 
 def is_friendly_king_in_check(situation):
@@ -237,28 +234,28 @@ def generate_situation(move, situation):
             new_situation.black_king = move_piece(origin, destination, situation.black_king)
         
     
-    #update_capture(destination, new_situation, situation.white_turn)
+    update_capture(destination, new_situation, situation.white_turn)
 
     return new_situation
 
 def update_capture(destination, situation, white_turn):
     if white_turn:
-        situation.black_pawns ^= destination
-        situation.black_knights ^= destination
-        situation.black_bishops ^= destination
-        situation.black_rooks ^= destination
-        situation.black_queens ^= destination
+        situation.black_pawns &= ~destination
+        situation.black_knights &= ~destination
+        situation.black_bishops &= ~destination
+        situation.black_rooks &= ~destination
+        situation.black_queens &= ~destination
     else:
-        situation.white_pawns ^= destination
-        situation.white_knights ^= destination
-        situation.white_bishops ^= destination
-        situation.white_rooks ^= destination
-        situation.white_queens ^= destination
+        situation.white_pawns &= ~destination
+        situation.white_knights &= ~destination
+        situation.white_bishops &= ~destination
+        situation.white_rooks &= ~destination
+        situation.white_queens &= ~destination
 
 def move_piece(origin, destination, pieces):
     #print("old bitboard:")
     #print(print_bitboard(pieces))
-    pieces ^= origin
+    pieces &= ~origin
     pieces |= destination
     #print("new bitboard:")
     #print(print_bitboard(pieces))
@@ -301,100 +298,6 @@ def promote_pawn(origin, destination, promotion, situation):
             situation.black_pawns ^= origin
             situation.black_queens |= destination
 
-str = """
-# TEST MOVES
-WHITE_ESCAPE_CHECK_SUCCESS =    0b000100000011110000
-WHITE_ESCAPE_CHECK_FAIL =       0b000100001101110000
-WHITE_MOVE_INTO_CHECK =         0b000100000101110000
-WHITE_BLOCK_CHECK =             0b010100001101011000
-WHITE_MOVE_WITHOUT_CHECK =      0b001011010011001000
-WHITE_DISCOVER_CHECK =          0b001101010101001000
-
-BLACK_ESCAPE_CHECK_SUCCESS =    0b111100110100110000
-BLACK_ESCAPE_CHECK_FAIL =       0b111000111001100000
-BLACK_MOVE_INTO_CHECK =         0b111100110011110000
-
-BLACK_MOVE_WITHOUT_CHECK =      0b111100111101110000
-
-print_move(WHITE_ESCAPE_CHECK_SUCCESS)
-print_move(WHITE_ESCAPE_CHECK_FAIL)
-print_move(WHITE_MOVE_INTO_CHECK)
-print_move(WHITE_BLOCK_CHECK)
-print_move(WHITE_MOVE_WITHOUT_CHECK)
-print_move(WHITE_DISCOVER_CHECK)
-
-print_move(BLACK_ESCAPE_CHECK_SUCCESS)
-print_move(BLACK_ESCAPE_CHECK_FAIL)
-print_move(BLACK_MOVE_INTO_CHECK)
-
-print_move(BLACK_MOVE_WITHOUT_CHECK)
-
-sit = Situation()
-sit.white_pawns =       0x0000000040279800
-sit.white_knights =     0x0000000000000042
-sit.white_bishops =     0x0000000000800004
-sit.white_rooks =       0x0000000000000180
-sit.white_queens =      0x0001000000000000
-sit.white_king =        0x0000000000000010
-
-sit.black_pawns =       0x0000619A04000000
-sit.black_knights =     0x0000840000000000
-sit.black_bishops =     0x0000100400000000
-sit.black_rooks =       0x8100000000000000
-sit.black_queens =      0x0000000100000000
-sit.black_king =        0x1000000000000000
-
-sit.white_turn = True
-print("black king")
-print(print_bitboard(sit.black_king))
-sit = generate_situation(BLACK_MOVE_INTO_CHECK, sit)
-
-all_pieces = get_all_pieces(sit)
-enemy_attack_board = 0
-enemy_attack_board |= pawn.get_attack_board(sit.white_pawns, all_pieces, False)
-enemy_attack_board |= knight.get_attack_board(sit.white_knights, all_pieces)
-enemy_attack_board |= bishop.get_attack_board(sit.white_bishops, all_pieces)
-enemy_attack_board |= rook.get_attack_board(sit.white_rooks, all_pieces)
-enemy_attack_board |= queen.get_attack_board(sit.white_queens, all_pieces)
-enemy_attack_board |= king.get_attack_board(sit.white_king, all_pieces)
-
-
-check_board = enemy_attack_board & sit.black_king
-
-
-print("white attack board")
-print(print_bitboard(enemy_attack_board))
-print("black king")
-print(print_bitboard(sit.black_king))
-print("check board")
-print(print_bitboard(check_board))
-
-print("white pawns")
-print(print_bitboard(sit.white_pawns))
-print("white knights")
-print(print_bitboard(sit.white_knights))
-print("white bishops")
-print(print_bitboard(sit.white_bishops))
-print("white rooks")
-print(print_bitboard(sit.white_rooks))
-print("white queens")
-print(print_bitboard(sit.white_queens))
-print("white king")
-print(print_bitboard(sit.white_king))
-
-print("black pawns")
-print(print_bitboard(sit.black_pawns))
-print("black knights")
-print(print_bitboard(sit.black_knights))
-print("black bishops")
-print(print_bitboard(sit.black_bishops))
-print("black rooks")
-print(print_bitboard(sit.black_rooks))
-print("black queens")
-print(print_bitboard(sit.black_queens))
-print("black king")
-print(print_bitboard(sit.black_king))
-"""
 
 
         
