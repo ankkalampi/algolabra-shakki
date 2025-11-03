@@ -35,6 +35,20 @@ def generate_move(origin_square, destination_square, piece, promotion = 0b000):
 
     return uci
 
+def get_promotion_bits_from_string(promotion_string):
+    promotion_bits = 0
+    if promotion_string == "k":
+        promotion_bits = 0b010
+    elif promotion_string == "b":
+        promotion_bits = 0b011
+    elif promotion_string == "r":
+        promotion_bits = 0b100
+    elif promotion_string == "q":
+        promotion_bits = 0b101
+
+    return promotion_bits
+
+
 def square_index_to_6_bits(square):
     return square & 0b111111
 
@@ -74,10 +88,10 @@ def get_uci(move):
     return f"{chr(97+origin_file)}{origin_rank}{chr(97+destination_file)}{destination_rank}{promotion}"
 
 def get_bitboard_of_square(square):
-        bitboard = EMPTY_BOARD
-        bitboard |= (1 << square)
+    bitboard = EMPTY_BOARD
+    bitboard |= (1 << square)
 
-        return bitboard
+    return bitboard
 
 
 
@@ -278,7 +292,8 @@ def get_move_from_uci(uci, situation):
 
     if len(uci) == 5:
         promotion_string = uci[4:5]
-        return generate_move(square_index_to_6_bits(origin_square), square_index_to_6_bits(destination_square), 0b001, promotion_string)
+        promotion_bits = get_promotion_bits_from_string(promotion_string)
+        return generate_move(square_index_to_6_bits(origin_square), square_index_to_6_bits(destination_square), 0b001, promotion_bits)
 
     piece = 0
     
@@ -315,7 +330,5 @@ def get_move_from_uci(uci, situation):
 
 
 
-move = 0b100011010010010000
 
-print(get_uci(move))
 
