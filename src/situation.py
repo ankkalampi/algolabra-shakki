@@ -189,7 +189,7 @@ def generate_situation(move, situation):
         promotion = get_promotion_from_move(move)
 
         if promotion != 0:
-
+            print(f"PROMOTION IMMINENT! Promoting to: {promotion}")
             promote_pawn(origin, destination, promotion, new_situation)
 
         else:
@@ -262,41 +262,53 @@ def move_piece(origin, destination, pieces):
     return pieces
 
 def promote_pawn(origin, destination, promotion, situation):
+    """
+    Execute pawn promotion move. NOTE: This function is acted on a new situation object 
+    being constructed, so white_turn here means next turn from the turn where the move
+    took place.
+
+    Args:
+    origin: origin square index
+    destination: destination square index
+    promotion: promotion bits
+    situation: the new situation being constructed
+    """
     # promotion knight
     if promotion == 0b010:
+        print("PROMOTING TO KNIGHT!!!")
         if situation.white_turn:
-            situation.white_pawns ^= origin
-            situation.white_knights |= destination
-        else:
             situation.black_pawns ^= origin
             situation.black_knights |= destination
+        else:
+            situation.white_pawns ^= origin
+            situation.white_knights |= destination
 
     # promotion bishop
     elif promotion == 0b011:
         if situation.white_turn:
+            situation.black_pawns ^= origin
+            situation.black_bishops |= destination
+        else:
             situation.white_pawns ^= origin
             situation.white_bishops |= destination
-        else:
-            situation.black_pawns ^= origin
-            situation.black_knights |= destination
 
     # promotion rook
     elif promotion == 0b100:
         if situation.white_turn:
-            situation.white_pawns ^= origin
-            situation.white_rooks |= destination
-        else:
             situation.black_pawns ^= origin
             situation.black_rooks |= destination
+        else:
+            situation.white_pawns ^= origin
+            situation.white_rooks |= destination
 
     # promotion queen
-    elif promotion == 0b100:
+    elif promotion == 0b101:
         if situation.white_turn:
-            situation.white_pawns ^= origin
-            situation.white_queens |= destination
-        else:
             situation.black_pawns ^= origin
             situation.black_queens |= destination
+        else:
+            situation.white_pawns ^= origin
+            situation.white_queens |= destination
 
 
 
