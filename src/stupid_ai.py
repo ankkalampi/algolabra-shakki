@@ -30,7 +30,7 @@ def set_board(board: ChessBoard, board_position:str):
 def make_move(board: ChessBoard):
     print(f"NUMBER OF LEGAL MOVES: {len(board.get_legal_moves())}")
     legal_moves = [get_uci(move) for move in list(board.get_legal_moves())]
-    print(f"I found {len(legal_moves)} legal moves: {', '.join(legal_moves)}")
+    print(f"I found {len(legal_moves)} legal moves for AI: {', '.join(legal_moves)}")
     
     if len(legal_moves) != 0:
         choice = random.choice(legal_moves)
@@ -75,11 +75,15 @@ def main():
             # example about logs
             print(f"I chose {choice}!")
             # example about posting a move
+            print(f"NUMBER OF LEGAL MOVES: {len(board.get_legal_moves())}")
+            legal_moves = [get_uci(move) for move in list(board.get_legal_moves())]
+            print(f"I found {len(legal_moves)} legal moves for Player: {', '.join(legal_moves)}")
             if not choice:
                 print("RESET:")
             print(f"MOVE:{choice}")
             
         elif opponent_move.startswith("MOVE:"):
+            
             move = opponent_move.removeprefix("MOVE:")
             board.execute_uci(move)
             print(f"Received move: {move}")

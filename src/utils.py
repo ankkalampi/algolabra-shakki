@@ -37,7 +37,7 @@ def generate_move(origin_square, destination_square, piece, promotion = 0b000):
 
 def get_promotion_bits_from_string(promotion_string):
     promotion_bits = 0
-    if promotion_string == "k":
+    if promotion_string == "n":
         print("PROMOTING TO KNIGHT!!! (get_promotion_bits_from_string)")
         promotion_bits = 0b010
     elif promotion_string == "b":
