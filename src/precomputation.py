@@ -291,20 +291,27 @@ def create_rook_blocking_attack_board(square, block_value):
                     ]
 
     for direction in range(0,4):
-        # if there is no blocking, attack squares are calculated from direction length
-        if blocking_bits[direction] == 0:
-            loop_length = direction_lengths[direction] +1
-        else:
-            loop_length = blocking_bits[direction]
-            
-        for move in range(1, loop_length +1):
-            temp_bitboard = 0
-            temp_bitboard |= (1 << square)
-            if direction_scalars[direction] < 0:
-                move_bitboard = (temp_bitboard >> (move * abs(direction_scalars[direction]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+
+        # no need to form bitboards for illegal directions
+        # also, because +1 is added to loop length on unblocked
+        # directions, this would create illegal attack targets
+        # if there was no check here
+        if direction_lengths[direction] != 0:
+                    
+            # if there is no blocking, attack squares are calculated from direction length
+            if blocking_bits[direction] == 0:
+                loop_length = direction_lengths[direction] +1
             else:
-                move_bitboard = (temp_bitboard << (move * direction_scalars[direction])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
-            bitboard |= move_bitboard
+                loop_length = blocking_bits[direction]
+                
+            for move in range(1, loop_length +1):
+                temp_bitboard = 0
+                temp_bitboard |= (1 << square)
+                if direction_scalars[direction] < 0:
+                    move_bitboard = (temp_bitboard >> (move * abs(direction_scalars[direction]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                else:
+                    move_bitboard = (temp_bitboard << (move * direction_scalars[direction])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                bitboard |= move_bitboard
 
     return bitboard
 
@@ -370,22 +377,34 @@ def create_bishop_blocking_attack_board(square, block_value):
 
     # add diagonals to bitboard
     for direction in range(0,4):
-        # if there is no blocking, attack squares are calculated from direction length
-        if blocking_bits[direction] == 0:
-            loop_length = diagonal_lengths[direction] +1
-        else:
-            loop_length = blocking_bits[direction]
-            
-        for move in range(1, loop_length +1):
-            temp_bitboard = 0
-            temp_bitboard |= (1 << square)
-            if diagonal_scalars[direction] < 0:
-                move_bitboard = (temp_bitboard >> (move * abs(diagonal_scalars[direction]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+
+        # no need to form bitboards for illegal directions
+        # also, because +1 is added to loop length on unblocked
+        # directions, this would create illegal attack targets
+        # if there was no check here
+        if diagonal_lengths[direction] != 0:
+                
+        
+            # if there is no blocking, attack squares are calculated from direction length
+            if blocking_bits[direction] == 0:
+                
+                loop_length = diagonal_lengths[direction] +1
             else:
-                move_bitboard = (temp_bitboard << (move * diagonal_scalars[direction])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                loop_length = blocking_bits[direction]
+
             
-            
-            bitboard |= move_bitboard
+                
+            for move in range(1, loop_length +1):
+                temp_bitboard = 0
+                temp_bitboard |= (1 << square)
+                if diagonal_scalars[direction] < 0:
+                    move_bitboard = (temp_bitboard >> (move * abs(diagonal_scalars[direction]))) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                else:
+                    move_bitboard = (temp_bitboard << (move * diagonal_scalars[direction])) & 0xFFFFFFFFFFFFFFFF # masking makes sure no extra bits are added
+                
+                #print(f"DIRECTION: {direction} LOOP LENGTH: {loop_length}")
+                #print(print_bitboard(move_bitboard))
+                bitboard |= move_bitboard
 
     return bitboard
 
@@ -470,8 +489,6 @@ def precompute_single_black_pawn_move_table(square):
     double_move = (square_bitboard & black_pawn_double_mask) >> 16
 
     return single_move | double_move
-
-
 
 
 
