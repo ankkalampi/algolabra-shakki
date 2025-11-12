@@ -31,8 +31,8 @@ class ChessBoard:
         print(f"MOVE FROM UCI: {show_move(get_move_from_uci(uci, self.situation))}")
         if try_move(get_move_from_uci(uci, self.situation), self.situation):
             self.situation = generate_situation(get_move_from_uci(uci, self.situation), self.situation)
-            #situation_value = evaluate_situation(self.situation)
-            #print(f"SITUATION VALUE: {situation_value}")
+            situation_value = evaluate_situation(self.situation)
+            print(f"SITUATION VALUE: {situation_value}")
         else:
             print("MOVE NOT LEGAL   ")
 
