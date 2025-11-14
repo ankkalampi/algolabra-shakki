@@ -15,6 +15,7 @@ from src.utils import *
 from src.attack_tables import get_attack_tables
 
 from src.precomputation import *
+from src.heuristic import get_highest_value_move, evaluate_move, get_lowest_value_move
 
 
 
@@ -28,14 +29,15 @@ def set_board(board: ChessBoard, board_position:str):
     #board.set_fen(board_position)
 
 def make_move(board: ChessBoard):
-    print(f"NUMBER OF LEGAL MOVES: {len(board.get_legal_moves())}")
+    #print(f"NUMBER OF LEGAL MOVES: {len(board.get_legal_moves())}")
     legal_moves = [get_uci(move) for move in list(board.get_legal_moves())]
-    print(f"I found {len(legal_moves)} legal moves for AI: {', '.join(legal_moves)}")
+    #print(f"I found {len(legal_moves)} legal moves for AI: {', '.join(legal_moves)}")
     
     if len(legal_moves) != 0:
-        choice = random.choice(legal_moves)
-        board.execute_uci(choice)
-        return choice
+        highest_value_move = get_lowest_value_move(legal_moves, board.situation)
+        
+        board.execute_uci(highest_value_move)
+        return highest_value_move
     
 
     return None
@@ -75,9 +77,9 @@ def main():
             # example about logs
             print(f"I chose {choice}!")
             # example about posting a move
-            print(f"NUMBER OF LEGAL MOVES: {len(board.get_legal_moves())}")
+            #print(f"NUMBER OF LEGAL MOVES: {len(board.get_legal_moves())}")
             legal_moves = [get_uci(move) for move in list(board.get_legal_moves())]
-            print(f"I found {len(legal_moves)} legal moves for Player: {', '.join(legal_moves)}")
+            #print(f"I found {len(legal_moves)} legal moves for Player: {', '.join(legal_moves)}")
             if not choice:
                 print("RESET:")
             print(f"MOVE:{choice}")

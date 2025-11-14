@@ -102,6 +102,7 @@ def get_moves(situation):
 
     return legal_moves
 
+
 def try_move(move, situation):
     
     if is_attempting_to_capture_friendly_piece(move, situation):

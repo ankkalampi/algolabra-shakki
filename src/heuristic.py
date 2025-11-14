@@ -5,7 +5,7 @@ import src.bishop as bishop
 import src.rook as rook
 import src.queen as queen
 from src.attack_tables import get_attack_tables
-from src.situation import get_all_pieces
+from src.situation import get_all_pieces, generate_situation
 
 
 
@@ -20,6 +20,9 @@ CENTER_BONUS = 1
 CHECK_BONUS = 5
 
 ENDGAME_PIECE_AMOUNT = 14
+
+WHITE_TERRITORY = 0x00000000FFFFFFFF
+BLACK_TERRITORY = 0xFFFFFFFF00000000
 
 
 def evaluate_situation(situation):
@@ -52,26 +55,60 @@ def evaluate_situation(situation):
     all_pieces = get_all_pieces(situation)
 
     points += calculate_white_pawns(white_pawns, PAWN_VALUE, attack_tables, black_king)
-    print(f"VALUE AFTER WHITE PAWNS: {points}")
+    #print(f"VALUE AFTER WHITE PAWNS: {points}")
     points += calculate_knights(white_knights, KNIGHT_VALUE, attack_tables, black_king)
-    print(f"VALUE AFTER WHITE KNIGHTS: {points}")
+    #print(f"VALUE AFTER WHITE KNIGHTS: {points}")
     points += calculate_bishops(white_bishops, BISHOP_VALUE, attack_tables, all_pieces, black_king)
-    print(f"VALUE AFTER WHITE BISHOPS: {points}")
+    #print(f"VALUE AFTER WHITE BISHOPS: {points}")
     points += calculate_rooks(white_rooks, ROOK_VALUE, attack_tables, all_pieces, black_king)
-    print(f"VALUE AFTER WHITE ROOKS: {points}") 
+    #print(f"VALUE AFTER WHITE ROOKS: {points}") 
     points += calculate_queens(white_queens, QUEEN_VALUE, attack_tables, all_pieces, black_king)
-    print(f"VALUE AFTER WHITE QUEENS: {points}")
+    #print(f"VALUE AFTER WHITE QUEENS: {points}")
     
-    print(f"POINTS: {points}")
+    #print(f"POINTS: {points}")
     points -= calculate_black_pawns(black_pawns, PAWN_VALUE, attack_tables, white_king)
     points -= calculate_knights(black_knights, KNIGHT_VALUE, attack_tables, white_king)
     points -= calculate_bishops(black_bishops, BISHOP_VALUE, attack_tables, all_pieces, white_king)
     points -= calculate_rooks(black_rooks, ROOK_VALUE, attack_tables, all_pieces, white_king)
     points -= calculate_queens(black_queens, QUEEN_VALUE, attack_tables, all_pieces, white_king)
-    print(f"POINTS: {points}")
+    #print(f"POINTS: {points}")
 
     return points
-    
+
+def evaluate_move(move, situation):
+    new_situation = generate_situation(move, situation)
+    value = evaluate_situation(new_situation)
+
+    return value
+
+def get_highest_value_move(moves, situation):
+    highest_value = -math.inf
+    highest_value_move = moves[0]
+    for move in moves:
+        move_value = evaluate_move(get_move_from_uci(move, situation), situation)
+        print(f"MOVE EVALUATED!!! MOVE VALUE: {move_value}  MOVE: {move}")
+        if move_value > highest_value:
+            highest_value = move_value
+            highest_value_move = move
+            print("HIGHEST VALUE MOVE FOUND!!!")
+            
+
+    return highest_value_move
+
+def get_lowest_value_move(moves, situation):
+    lowest_value = math.inf
+    lowest_value_move = moves[0]
+
+    for move in moves:
+        move_value = evaluate_move(get_move_from_uci(move, situation), situation)
+        print(f"MOVE EVALUATED!!! MOVE VALUE: {move_value}  MOVE: {move}")
+        if move_value < lowest_value:
+            lowest_value = move_value
+            lowest_value_move = move
+            print("LOWEST VALUE MOVE FOUND!!!")
+            
+
+    return lowest_value_move
 
 
 
