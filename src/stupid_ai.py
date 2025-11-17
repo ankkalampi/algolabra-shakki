@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+import math
+
 project_root = str(Path(__file__).resolve().parents[1])
 if project_root not in sys.path:
     sys.path.append(project_root)
@@ -16,10 +18,10 @@ from src.attack_tables import get_attack_tables
 
 from src.precomputation import *
 from src.heuristic import get_highest_value_move, evaluate_move, get_lowest_value_move
+from src.minmax import minmax
 
 
-
-
+DEPTH = 4
 
 
 
@@ -34,10 +36,10 @@ def make_move(board: ChessBoard):
     #print(f"I found {len(legal_moves)} legal moves for AI: {', '.join(legal_moves)}")
     
     if len(legal_moves) != 0:
-        highest_value_move = get_lowest_value_move(legal_moves, board.situation)
-        
-        board.execute_uci(highest_value_move)
-        return highest_value_move
+        best_score, best_move = minmax(board.situation, DEPTH, -math.inf, math.inf, False)
+        uci = get_uci(best_move)
+        board.execute_uci(uci)
+        return uci
     
 
     return None
