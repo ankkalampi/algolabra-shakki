@@ -1,4 +1,5 @@
-import math
+import math, time
+from functools import cmp_to_key
 from src.situation import Situation
 from src.utils import *
 import src.bishop as bishop
@@ -6,6 +7,9 @@ import src.rook as rook
 import src.queen as queen
 from src.attack_tables import get_attack_tables
 from src.situation import get_all_pieces, generate_situation
+from collections import defaultdict
+import src.timing
+
 
 
 
@@ -17,7 +21,7 @@ QUEEN_VALUE = 8
 
 ENEMY_TERRITORY_BONUS = 3
 CENTER_BONUS = 1
-CHECK_BONUS = 5
+CHECK_BONUS = 2
 
 ENDGAME_PIECE_AMOUNT = 14
 
@@ -85,12 +89,12 @@ def get_highest_value_move(moves, situation):
     highest_value = -math.inf
     highest_value_move = moves[0]
     for move in moves:
-        move_value = evaluate_move(get_move_from_uci(move, situation), situation)
-        print(f"MOVE EVALUATED!!! MOVE VALUE: {move_value}  MOVE: {move}")
+        move_value = evaluate_move(move, situation)
+        #print(f"MOVE EVALUATED!!! MOVE VALUE: {move_value}  MOVE: {move}")
         if move_value > highest_value:
             highest_value = move_value
             highest_value_move = move
-            print("HIGHEST VALUE MOVE FOUND!!!")
+            #print("HIGHEST VALUE MOVE FOUND!!!")
             
 
     return highest_value_move
@@ -100,15 +104,72 @@ def get_lowest_value_move(moves, situation):
     lowest_value_move = moves[0]
 
     for move in moves:
-        move_value = evaluate_move(get_move_from_uci(move, situation), situation)
-        print(f"MOVE EVALUATED!!! MOVE VALUE: {move_value}  MOVE: {move}")
+        move_value = evaluate_move(move, situation)
+        #print(f"MOVE EVALUATED!!! MOVE VALUE: {move_value}  MOVE: {move}")
         if move_value < lowest_value:
             lowest_value = move_value
             lowest_value_move = move
-            print("LOWEST VALUE MOVE FOUND!!!")
+            #print("LOWEST VALUE MOVE FOUND!!!")
             
 
     return lowest_value_move
+
+def get_higher_value_move(move_a, move_b, situation):
+    move_a_value = evaluate_move(get_move_from_uci(move_a, situation), situation)
+    move_b_value = evaluate_move(get_move_from_uci(move_b, situation), situation)
+
+    if move_a_value > move_b_value:
+        return 1
+    elif move_b_value > move_a_value:
+        return -1
+    else:
+        return 0
+
+def get_lower_value_move(move_a, move_b, situation):
+    move_a_value = evaluate_move(get_move_from_uci(move_a, situation), situation)
+    move_b_value = evaluate_move(get_move_from_uci(move_b, situation), situation)
+
+    if move_a_value > move_b_value:
+        return -1
+    elif move_b_value > move_a_value:
+        return 1
+    else:
+        return 0
+
+
+def sort_moves(moves, situation, is_white):
+    #print("STARTING TO SORT")
+    start = time.perf_counter()
+    sorted_moves = []
+    temp_moves = moves.copy()
+
+    if is_white:
+
+        for i in range(0,len(moves)):
+            lowest_value_move = get_lowest_value_move(temp_moves, situation)
+            sorted_moves.append(lowest_value_move)
+            temp_moves.remove(lowest_value_move)
+
+        
+
+    else:
+        
+
+        for i in range(0,len(moves)):
+            highest_value_move = get_highest_value_move(temp_moves, situation)
+            sorted_moves.append(highest_value_move)
+            temp_moves.remove(highest_value_move)
+
+    #print("SORTED MOVES:")
+
+    #print(f"moves: {sorted_moves}")
+
+    end = time.perf_counter()
+
+    src.timing.SORTING_TIME += end - start
+
+    return sorted_moves
+
 
 
 

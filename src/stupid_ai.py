@@ -10,6 +10,8 @@ if project_root not in sys.path:
 
 
 
+
+
 import random
 import time
 from src.chess_board import ChessBoard
@@ -19,9 +21,15 @@ from src.attack_tables import get_attack_tables
 from src.precomputation import *
 from src.heuristic import get_highest_value_move, evaluate_move, get_lowest_value_move
 from src.minmax import minmax
+import src.timing
 
 
-DEPTH = 4
+DEPTH = 3
+
+
+
+
+
 
 
 
@@ -31,14 +39,35 @@ def set_board(board: ChessBoard, board_position:str):
     #board.set_fen(board_position)
 
 def make_move(board: ChessBoard):
+    start = time.perf_counter()
     #print(f"NUMBER OF LEGAL MOVES: {len(board.get_legal_moves())}")
     legal_moves = [get_uci(move) for move in list(board.get_legal_moves())]
     #print(f"I found {len(legal_moves)} legal moves for AI: {', '.join(legal_moves)}")
     
     if len(legal_moves) != 0:
+        minmax_start = time.perf_counter()
         best_score, best_move = minmax(board.situation, DEPTH, -math.inf, math.inf, False)
+        minmax_end = time.perf_counter()
+        minmax_time = minmax_end - minmax_start
         uci = get_uci(best_move)
         board.execute_uci(uci)
+
+        end = time.perf_counter()
+        turn_time = end - start
+        minmax_percentage = minmax_time / turn_time * 100
+        sorting_percentage = src.timing.SORTING_TIME / turn_time * 100
+        situation_generation_percentage = src.timing.SITUATION_GENERATION_TIME / turn_time * 100
+
+       
+        src.timing.SORTING_TIME = 0.0
+        src.timing.SITUATION_GENERATION_TIME = 0.0
+
+
+
+        print(f"TURN TIME: {turn_time}")
+        print(f"IN MINMAX: {minmax_percentage}%")
+        print(f"IN SORT: {sorting_percentage}%")
+        print(f"IN SITUATION_GENERATION: {situation_generation_percentage}%")
         return uci
     
 

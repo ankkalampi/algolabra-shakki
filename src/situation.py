@@ -4,7 +4,7 @@ import src.bishop as bishop
 import src.rook as rook
 import src.queen as queen
 import src.king as king
-import copy
+import copy, time, src.timing
 
 from src.utils import *
 
@@ -174,7 +174,7 @@ def is_attempting_to_capture_friendly_piece(move, situation):
 
 # using this function assumes that the move is not trying to capture a friendly piece
 def generate_situation(move, situation):
-    
+    start = time.perf_counter()
     new_situation = copy.deepcopy(situation)
     
     new_situation.white_turn =   not situation.white_turn
@@ -236,6 +236,11 @@ def generate_situation(move, situation):
         
     
     update_capture(destination, new_situation, situation.white_turn)
+
+    end = time.perf_counter()
+    src.timing.SITUATION_GENERATION_TIME += end - start
+
+
 
     return new_situation
 
