@@ -4,6 +4,19 @@ import math
 from src.heuristic import sort_moves
 
 def minmax(situation, depth, alpha, beta, is_white):
+    """
+    Use minmax algorithm to deduce best move in a given situation
+
+    Args:
+    situation: situation object of the given situation
+    depth: depth to which the algorithm calculates
+    aplha: used for recursive calls, must be -inf for initial call
+    beta: used for recursive calls, must be inf for initial call
+    is_white: true, if the current player is white
+
+    Returns:
+    tuple: (best_score, best_move)
+    """
     moves = get_moves(situation)
     if len(moves) == 0:
         if is_white:
@@ -16,7 +29,7 @@ def minmax(situation, depth, alpha, beta, is_white):
 
     best_move = None
 
-    #moves = sort_moves(unsorted_moves, situation, is_white)
+
 
     if is_white:
         max_value = -math.inf
@@ -28,7 +41,6 @@ def minmax(situation, depth, alpha, beta, is_white):
                 best_move = move
             aplha = max(alpha, value)
             if beta <= aplha:
-                #print(f"PRUNED!! depth: {depth}")
                 break
         return (max_value, best_move)
 
@@ -42,7 +54,6 @@ def minmax(situation, depth, alpha, beta, is_white):
                 best_move = move
             beta = min(beta, value)
             if beta <= alpha:
-                #print(f"PRUNED!! depth: {depth}")
                 break
         return (min_value, best_move)
 
