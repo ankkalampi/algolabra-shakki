@@ -43,3 +43,16 @@ Yritin parantaa tehokkuutta järjestämällä siirrot paremmuusjärjestykseen en
 ## Puutteet ja parannusehdotukset
 
 Kuten mainittua, minmax-algoritmia ei ole alfa-beta -karsintaa lukuun ottamatta juurikaan saatu tehostettua tässä sovelluksessa. On kuitenkin olemassa paljonkin optimointimenetelmiä, jotka perustuvat erityisesti siihen, miten alfa-beta -karsinta saadaan karsimaan mahdollisimman paljon haaroja pois laskennasta. Eräs lupaava menetelmä olisi aloittaa vuoroista, joissa syödään vastustajan nappula, koska nämä useimmin johtavat hyviin asemiin. Omassa toteutuksessani ei varsinaisesti kulje tietoa siitä, syödäänkö nappula vai ei (syöminen tapahtuu suorittamalla bittioperaatioita, jotka eivät vaikuta laudan tilanteeseen, jos syömistä ei tapahdu).
+
+## Kielimallien käyttö
+
+Olen käyttänyt projektin kehityksessä apuna jonkin verran Mistral AI:ta, sekä muutaman yksittäisen kerran myös ChatGPT:tä. Olen pyytänyt tekoälyä esimerkiksi selittämään ja avaamaan minulle joitain käsitteitä ja tekniikoita (erityisesti bitboardien ja niihin liittyvien bittioperaatioiden tapauksessa), sekä toimimaan eräänlaisena hakukoneena siten, että olen antanut sille promptin, ja pyytänyt sen perusteella hakemaan asiaa valaisevia verkkolähteitä. Olen myös pyytänyt tekoälyä avaamaan minulle, miten ns. oikean maailman shakkitoteutuksissa ollaan toteutettu tehokas laillisten siirtojen laskenta. En ole kopioinut mitään kielimallien tuotoksia ainakaan sellaisenaan, vaan tekoäly on ollut projektissa eräänlaisen apuopettajan roolissa.
+
+## Muut lähteet
+
+Olen lukenut jonkin verran pychessin dokumentaatiota selvittääkseni, miten siinä ollaan ratkaistu pelitilanteiden generointi, ja minkälainen rakenne tämänkaltaisessa oikean maailman shakkitoteutuksessa on. https://pychess.readthedocs.io/en/latest/index.html
+
+Lisäksi olen lukenut minmax-algoritmista seuraavista lähteistä:
+https://www.geeksforgeeks.org/artificial-intelligence/mini-max-algorithm-in-artificial-intelligence/
+https://en.wikipedia.org/wiki/Minimax
+https://medium.com/@mhhassaan.1/mini-max-algorithm-in-artificial-intelligence-e0a0da694b3b
