@@ -142,6 +142,7 @@ test_cases = [
     pytest.param(
         mock_situation_in_white_check,
         WHITE_ESCAPE_CHECK_SUCCESS,
+        True,
         False,
         id="White is in check but escapes"
         ),
@@ -149,11 +150,13 @@ test_cases = [
         mock_situation_in_white_check,
         WHITE_ESCAPE_CHECK_FAIL,
         True,
+        True,
         id="White is in check and fails to escape"
         ),
     pytest.param(
         mock_situation_in_white_check,
         WHITE_BLOCK_CHECK,
+        True,
         False,
         id="White is in check but blocks it"
         ),
@@ -161,11 +164,13 @@ test_cases = [
         mock_situation_not_in_white_check,
         WHITE_MOVE_INTO_CHECK,
         True,
+        True,
         id="White wasn't in check, moves into check"
         ),
     pytest.param(
         mock_situation_not_in_white_check,
         WHITE_MOVE_WITHOUT_CHECK,
+        True,
         False,
         id="White wasn't in check, and still isn't"
         ),
@@ -174,11 +179,13 @@ test_cases = [
         mock_situation_in_black_check,
         BLACK_ESCAPE_CHECK_SUCCESS,
         False,
+        False,
         id="Black is in check but escapes"
         ),
     pytest.param(
         mock_situation_in_black_check,
         BLACK_ESCAPE_CHECK_FAIL,
+        False,
         True,
         id="Black is in check and fails to escape"
         ),
@@ -186,6 +193,7 @@ test_cases = [
     pytest.param(
         mock_situation_not_in_black_check,
         BLACK_MOVE_INTO_CHECK,
+        False,
         True,
         id="Black wasn't in check, moves into check"
         ),
@@ -193,14 +201,19 @@ test_cases = [
         mock_situation_not_in_black_check,
         BLACK_MOVE_WITHOUT_CHECK,
         False,
+        False,
         id="Black wasn't in check, and still isn't"
         ),
     ]
 
-@pytest.mark.parametrize("function, move, expected", test_cases)
-def test_is_friendly_king_in_check(function, move, expected, mock_situation):
+@pytest.mark.parametrize("function, move, checking_for_white, expected", test_cases)
+def test_is_friendly_king_in_check(function, move, checking_for_white, expected, mock_situation):
     situation = function(mock_situation)
+    
     situation = generate_situation(move, situation)
+
+    situation.white_turn = checking_for_white
+   
     result = is_friendly_king_in_check(situation)
 
     assert result == expected, (

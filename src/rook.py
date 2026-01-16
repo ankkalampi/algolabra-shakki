@@ -129,3 +129,4 @@ def get_moves(location_board, all_pieces):
             moves.append(generate_move(location_square, move_square, 0b100))
 
     return moves
+

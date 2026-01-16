@@ -20,9 +20,9 @@ def minmax(situation, depth, alpha, beta, is_white):
     moves = get_moves(situation)
     if len(moves) == 0:
         if is_white:
-            return (10000, None)
-        else:
             return (-10000, None)
+        else:
+            return (10000, None)
 
     if depth == 0:
         return (evaluate_situation(situation), None)

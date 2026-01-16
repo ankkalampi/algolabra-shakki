@@ -82,7 +82,7 @@ test_cases = [
         ROOKS,
         ALL_PIECES,
         EXPECTED_MOVES,
-        id = "Get all bishop moves"
+        id = "Get all rook moves"
     )
 ]
 
@@ -115,7 +115,7 @@ test_cases = [
         ROOKS,
         ALL_PIECES,
         EXPECTED_ATTACK_BOARD,
-        id = "Get attack board for all bishops"
+        id = "Get attack board for all rooks"
     )
 ]
 

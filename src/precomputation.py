@@ -265,11 +265,18 @@ def create_rook_blocking_attack_board(square, block_value):
     rank = square // 8
     file = square % 8
 
+    #print(f"Rook rank: {rank} Rook file: {file}")
+
     # note: edge squares won't block, that's why they don't have to be considered
-    space_right = file -1 if file > 0 else 0      # number of squares to the right 
-    space_left = 7 - file -1 if file < 8 else 0   # number of squares to the left
-    space_down = rank -1 if rank > 0 else 0      # number of squares below
-    space_up = 7 - rank -1 if rank < 8 else 0     # number of squares above
+    space_right = file  if file > 0 else 0      # number of squares to the right 
+    space_left = 7 - file  if file < 8 else 0   # number of squares to the left
+    space_down = rank  if rank > 0 else 0      # number of squares below
+    space_up = 7 - rank  if rank < 8 else 0     # number of squares above
+
+    #print(f"space right: {space_right}")
+    #print(f"space left: {space_left}")
+    #print(f"space down: {space_down}")
+    #print(f"space up: {space_up}")
 
     # lengths of directions
     # order: up, right, down, left
@@ -300,7 +307,7 @@ def create_rook_blocking_attack_board(square, block_value):
                     
             # if there is no blocking, attack squares are calculated from direction length
             if blocking_bits[direction] == 0:
-                loop_length = direction_lengths[direction] +1
+                loop_length = direction_lengths[direction] 
             else:
                 loop_length = blocking_bits[direction]
                 
@@ -346,17 +353,17 @@ def create_bishop_blocking_attack_board(square, block_value):
     # order: northeast, southeast, southwest, northwest
     # note: edge squares won't block, that's why they don't have to be considered
     northeast = min(space_right, space_up)
-    if northeast > 0:
-        northeast -= 1
+    #if northeast > 0:
+    #    northeast -= 1
     southeast = min(space_right, space_down)
-    if southeast > 0:
-        southeast -= 1
+    #if southeast > 0:
+    #    southeast -= 1
     southwest = min(space_down, space_left)
-    if southwest > 0:
-        southwest -= 1
+    #if southwest > 0:
+    #    southwest -= 1
     northwest = min(space_left, space_up)
-    if northwest > 0:
-        northwest -= 1
+    #if northwest > 0:
+    #    northwest -= 1
 
     diagonal_lengths = [northeast,
                         southeast,
@@ -388,7 +395,7 @@ def create_bishop_blocking_attack_board(square, block_value):
             # if there is no blocking, attack squares are calculated from direction length
             if blocking_bits[direction] == 0:
                 
-                loop_length = diagonal_lengths[direction] +1
+                loop_length = diagonal_lengths[direction]
             else:
                 loop_length = blocking_bits[direction]
 
@@ -489,8 +496,6 @@ def precompute_single_black_pawn_move_table(square):
     double_move = (square_bitboard & black_pawn_double_mask) >> 16
 
     return single_move | double_move
-
-
 
 
 
