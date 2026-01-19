@@ -1,16 +1,26 @@
 [tool.poetry]
-name = "stupid-chess-ai"
+name = "algolabra-shakki"
 version = "0.1.0"
 description = ""
 authors = []
 license = "MIT License"
 readme = "README.md"
+packages = [
+    { include = "*", from = "src" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 chess = "^1.10.0"
 
 
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.2,<10.0.0)",
+    "pytest-cov (>=7.0.0,<8.0.0)"
+]

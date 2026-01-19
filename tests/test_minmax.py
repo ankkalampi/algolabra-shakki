@@ -62,6 +62,12 @@ def test_correct_move_minmax_in_check_in_one():
     points, result = minmax(CHECK_IN_ONE, 3, -math.inf, math.inf, True)
     assert result == CHECK_IN_ONE_EXPECTED
 
+"""
+def test_correct_move_minmax_in_check_in_five():
+    points, result = minmax(CHECK_IN_FIVE, 3, -math.inf, math.inf, True)
+    assert result == CHECK_IN_FIVE_EXPECTED
+"""
+
 
 
 
