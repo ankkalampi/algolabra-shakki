@@ -1,6 +1,6 @@
 import math, time
 from functools import cmp_to_key
-from src.situation import Situation
+from src.situation import Situation, get_moves
 from src.utils import *
 import src.bishop as bishop
 import src.rook as rook
@@ -9,6 +9,7 @@ from src.attack_tables import get_attack_tables
 from src.situation import get_all_pieces, generate_situation
 from collections import defaultdict
 import src.timing
+
 
 
 
@@ -41,6 +42,9 @@ def evaluate_situation(situation):
     Returns:
     integer value
     """
+    
+
+
     points = 0
     white_pawns = situation.white_pawns
     white_knights = situation.white_knights

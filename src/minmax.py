@@ -3,6 +3,7 @@ from src.heuristic import get_highest_value_move, get_lowest_value_move, evaluat
 import math
 from src.heuristic import sort_moves
 
+from src.utils import show_move
 def minmax(situation, depth, alpha, beta, is_white):
     """
     Use minmax algorithm to deduce best move in a given situation
@@ -17,6 +18,8 @@ def minmax(situation, depth, alpha, beta, is_white):
     Returns:
     tuple: (best_score, best_move)
     """
+
+    #print(f"Minmax call started! alpha: {alpha}  beta: {beta} white turn: {is_white}")
     moves = get_moves(situation)
     if len(moves) == 0:
         if is_white:
@@ -34,19 +37,23 @@ def minmax(situation, depth, alpha, beta, is_white):
     if is_white:
         max_value = -math.inf
         for move in moves:
+            #print(f"Starting recursive call of minmax! depth: {depth-1}")
             value, ignore = minmax(generate_situation(move, situation), depth -1, alpha, beta, False)
     
             if value > max_value:
                 max_value = value
                 best_move = move
-            aplha = max(alpha, value)
-            if beta <= aplha:
+            alpha = max(alpha, value)
+            if beta <= alpha:
+                #print(f"PRUNED!!!! beta: {beta}  alpha: {alpha} depth: {depth}")
                 break
+        #print(f"Returning from minmax! depth: {depth} max_value: {max_value} best_move: {show_move(best_move)}")
         return (max_value, best_move)
 
     else:
         min_value = math.inf
         for move in moves:
+            #print(f"Starting recursive call of minmax! depth: {depth-1}")
             value, ignore = minmax(generate_situation(move, situation), depth -1, alpha, beta, True)
            
             if value < min_value:
@@ -54,8 +61,15 @@ def minmax(situation, depth, alpha, beta, is_white):
                 best_move = move
             beta = min(beta, value)
             if beta <= alpha:
+                #print(f"PRUNED!!!! beta: {beta}  alpha: {alpha} depth: {depth}")
                 break
+        #print(f"Returning from minmax! depth: {depth} min_value: {min_value} best_move: {show_move(best_move)}")
         return (min_value, best_move)
+
+
+
+
+
 
 
 
