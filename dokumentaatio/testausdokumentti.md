@@ -50,12 +50,12 @@ Testisyötteinä ollaan käytetty pelitilannetta kuvaavia Situation-olioita, Yhd
 
 Ajamalla projektin juuressa:
 
-´´´
+```
 pytest
-´´´
+```
 
 tai poetryn kautta:
 
-´´´
+```
 poetry run pytest tests/
-´´´
+```
