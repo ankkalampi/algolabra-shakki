@@ -49,10 +49,13 @@ Testisyötteinä ollaan käytetty pelitilannetta kuvaavia Situation-olioita, Yhd
 ## Miten testit voidaan toistaa?
 
 Ajamalla projektin juuressa:
+
 ´´´
 pytest
 ´´´
+
 tai poetryn kautta:
+
 ´´´
 poetry run pytest tests/
 ´´´
