@@ -51,16 +51,20 @@ CHECK_IN_FIVE_EXPECTED = 0b011100011010100000 # 28-> 26 rook no promotion
 CHECK_IN_THREE_EXPECTED = 0b010011010001101000 # 19-> 17 queen no promotion
 CHECK_IN_ONE_EXPECTED = 0b011010011000100000 # 26-> 24 rook no promotion
 
+CHECKMATE_VALUE = 10000
 
 
 
-def test_correct_move_minmax_in_check_in_three():
+
+def test_correct_move_and_correct_value_minmax_in_check_in_three():
     points, result = minmax(CHECK_IN_THREE, 3, -math.inf, math.inf, True)
     assert result == CHECK_IN_THREE_EXPECTED
+    assert points == CHECKMATE_VALUE
 
-def test_correct_move_minmax_in_check_in_one():
+def test_correct_move_and_correct_value_minmax_in_check_in_one():
     points, result = minmax(CHECK_IN_ONE, 3, -math.inf, math.inf, True)
     assert result == CHECK_IN_ONE_EXPECTED
+    assert points == CHECKMATE_VALUE
 
 """
 def test_correct_move_minmax_in_check_in_five():
